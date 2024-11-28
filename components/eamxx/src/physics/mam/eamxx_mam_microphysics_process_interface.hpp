@@ -4,6 +4,7 @@
 #include <physics/mam/mam_coupling.hpp>
 #include <share/atm_process/atmosphere_process.hpp>
 #include <share/util/scream_common_physics_functions.hpp>
+
 #include "readfiles/tracer_reader_utils.hpp"
 // For calling MAM4 processes
 #include <mam4xx/mam4.hpp>
@@ -14,18 +15,20 @@ namespace scream {
 // The process responsible for handling MAM4 aerosol microphysics. The AD
 // stores exactly ONE instance of this class in its list of subcomponents.
 class MAMMicrophysics final : public scream::AtmosphereProcess {
-  using PF = scream::PhysicsFunctions<DefaultDevice>;
-  using KT = ekat::KokkosTypes<DefaultDevice>;
+  static constexpr int n_land_type = mam4::mo_drydep::n_land_type;
+  using PF                         = scream::PhysicsFunctions<DefaultDevice>;
+  using KT                         = ekat::KokkosTypes<DefaultDevice>;
 
   // views for single- and multi-column data
   using view_1d       = typename KT::template view_1d<Real>;
   using view_2d       = typename KT::template view_2d<Real>;
   using view_3d       = typename KT::template view_3d<Real>;
   using const_view_1d = typename KT::template view_1d<const Real>;
+  using const_view_2d = typename KT::template view_2d<const Real>;
 
   using view_1d_host = typename KT::view_1d<Real>::HostMirror;
 
-  using view_int_2d       = typename KT::template view_2d<int>;
+  using view_int_2d = typename KT::template view_2d<int>;
 
   // a thread team dispatched to a single vertical column
   using ThreadTeam = mam4::ThreadTeam;
@@ -33,6 +36,9 @@ class MAMMicrophysics final : public scream::AtmosphereProcess {
  public:
   // Constructor
   MAMMicrophysics(const ekat::Comm &comm, const ekat::ParameterList &params);
+
+  // Virtual Destructor
+  virtual ~MAMMicrophysics() {}
 
   // --------------------------------------------------------------------------
   // AtmosphereProcess overrides (see share/atm_process/atmosphere_process.hpp)
@@ -42,7 +48,7 @@ class MAMMicrophysics final : public scream::AtmosphereProcess {
   AtmosphereProcessType type() const override;
 
   // The name of the subcomponent
-  std::string name() const { return "mam_aero_microphysics"; }
+  std::string name() const override { return "mam_aero_microphysics"; }
 
   // grid
   void set_grids(
@@ -59,7 +65,7 @@ class MAMMicrophysics final : public scream::AtmosphereProcess {
   void run_impl(const double dt) override;
 
   // Finalize
-  void finalize_impl(){/*Do nothing*/};
+  void finalize_impl() override{/*Do nothing*/};
 
  private:
   // number of horizontal columns and vertical levels
@@ -79,13 +85,12 @@ class MAMMicrophysics final : public scream::AtmosphereProcess {
   double m_orbital_mvelp;  // Vernal Equinox Mean Longitude of Perihelion
 
   struct Config {
-
     // stratospheric chemistry parameters
     struct {
-      int o3_lbl;  // number of layers with ozone decay from the surface
+      int o3_lbl;   // number of layers with ozone decay from the surface
       Real o3_sfc;  // set from namelist input linoz_sfc
       Real o3_tau;  // set from namelist input linoz_tau
-      Real psc_T;  // set from namelist input linoz_psc_T
+      Real psc_T;   // set from namelist input linoz_psc_T
     } linoz;
 
     // aqueous chemistry parameters
@@ -234,7 +239,8 @@ class MAMMicrophysics final : public scream::AtmosphereProcess {
   std::vector<mam_coupling::TracerData> elevated_emis_data_;
   std::map<std::string, std::string> elevated_emis_file_name_;
   std::map<std::string, std::vector<std::string>> elevated_emis_var_names_;
-  view_2d elevated_emis_output_[mam_coupling::MAX_NUM_ELEVATED_EMISSIONS_FIELDS];
+  view_2d
+      elevated_emis_output_[mam_coupling::MAX_NUM_ELEVATED_EMISSIONS_FIELDS];
   view_3d extfrc_;
   mam_coupling::ForcingHelper forcings_[mam4::gas_chemistry::extcnt];
 
