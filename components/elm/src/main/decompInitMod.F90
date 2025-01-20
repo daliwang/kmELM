@@ -165,12 +165,7 @@ contains
     enddo
 
     ! count total land gridcells
-    numg = 0
-    do ln = 1,lns
-       if (amask(ln) == 1) then
-          numg = numg + 1
-       endif
-    enddo
+    numg = lns
    
     if (npes > numg) then
        write(iulog,*) 'decompInit_lnd(): Number of processes exceeds number ', &
@@ -208,29 +203,17 @@ contains
     lcid(:) = 0
     ng = 0
     do ln = 1,lns
-       if (amask(ln) == 1) then
-          ng = ng  + 1
+        ng = ng  + 1
+        cid = amask(ln)
+        lcid(ln) = cid
 
-          !--- give to clumps in order based on nsegspc
-          if (seglen1) then
-             cid = mod(ng-1,nclumps) + 1
-          else
-             rcid = (dble(ng-1)/dble(numg))*dble(nsegspc)*dble(nclumps)
-             cid = mod(int(rcid),nclumps) + 1
-          endif
-          lcid(ln) = cid
+        if (iam == clumps(cid)%owner) then  
+           procinfo%ncells  = procinfo%ncells  + 1
+        endif
 
-          !--- give gridcell cell to pe that owns cid ---
-          !--- this needs to be done to subsequently use function
-          !--- get_proc_bounds(begg,endg) 
-          if (iam == clumps(cid)%owner) then
-             procinfo%ncells  = procinfo%ncells  + 1
-          endif
+        !--- give gridcell to cid ---
+        clumps(cid)%ncells  = clumps(cid)%ncells  + 1
 
-          !--- give gridcell to cid ---
-          clumps(cid)%ncells  = clumps(cid)%ncells  + 1
-
-       end if
     enddo
 
     ! calculate number of cells per process
