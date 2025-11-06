@@ -5,7 +5,7 @@ set -e
 # Create a test kmELMcase with dataset created by kiloCraft for DATM with I1850CNPRDCTCBC compset
 
 KILOCRAFT_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kiloCraft/"
-KMELM_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kmELM/"
+KMELM_ROOT=$(git rev-parse --show-toplevel)
 KMELM_CASE_ROOT="${KMELM_ROOT}/e3sm_cases/"
 KMELM_RUN_ROOT="${KMELM_ROOT}/e3sm_runs/"
 
