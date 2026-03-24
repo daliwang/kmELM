@@ -1,0 +1,59 @@
+
+---------------------------- [ gcc/12.4.0, openmpi/5.0.5 ] -----------------------------
+   adios2/2.10.2-mpi            nco/5.2.4-mpi
+   amdfftw/5.0-mpi-omp          netcdf-c/4.9.2-mpi-h5f       (L)
+   boost/1.86.0-mpi             netcdf-cxx/4.2-mpi           (L)
+   exodusii/2024-04-03-mpi      netcdf-cxx4/4.3.1-mpi
+   fftw/3.3.10-mpi-omp          netcdf-fortran/4.6.1-mpi-h5f (L)
+   fftw/3.3.10-mpi              netlib-scalapack/2.2.0-mpi
+   gromacs/2024.3-mpi-omp       parallel-netcdf/1.12.3-mpi
+   hdf5/1.14.5-mpi              parallelio/2.6.2-mpi
+   hypre/2.32.0-mpi             paraview/5.13.1-mpi
+   lammps/20240829.1-mpi-omp    quantum-espresso/7.4-mpi-omp
+   mfem/4.7.0-mpi               silo/4.11.1-mpi
+   mpifileutils/0.11.1-mpi      visit/3.3.3-mpi
+
+------------------------------------ [ gcc/12.4.0 ] ------------------------------------
+   amdblis/5.0                fftw/3.3.10           (D)    openblas/0.3.28-omp
+   amdfftw/5.0-omp     (D)    gdal/3.10.0                  openblas/0.3.28     (D)
+   amdlibflame/5.0            geant4/11.2.2                openmpi/5.0.5       (L)
+   boost/1.86.0        (D)    hdf5/1.14.5           (D)    qt/5.15.15
+   eigen/3.4.0                lammps/20240829.1-omp (D)    star/2.7.11b
+   exodusii/2024-04-03 (D)    libgeotiff/1.7.1             stringtie/3.0.0
+   fastqc/0.12.1              mpfr/4.2.0                   trimmomatic/0.39
+   fftw/3.3.10-omp            netlib-lapack/3.11.0
+
+------------------------------------ [ Core/25.05 ] ------------------------------------
+   autoconf/2.72          hpcviewer/2024.09           proj/9.4.1
+   automake/1.16.5        htop/3.3.0                  r/4.4.1
+   bazel/7.0.2            hwloc/2.11.1                sbt/1.10.0
+   ccache/4.10.2          imagemagick/7.1.1-39        screen/4.9.1
+   cmake/3.30.5    (L)    jasper/4.2.4-gl             spark/3.5.1
+   emacs/29.4             jasper/4.2.4         (D)    texlive/20240312
+   gdb/15.2               libzmq/4.3.5                tmux/3.4
+   gnupg/2.4.5            mercurial/6.7.3             valgrind/3.23.0
+   gnuplot/5.4.10         nano/8.2                    wget/1.24.5
+   go/1.23.2              papi/7.1.0
+   gsl/2.8                parallel/20240822
+
+----------------------------------- [ Base Modules ] -----------------------------------
+   Core/25.05  (L)      gcc/13.3.0                  mkl/2025.1.1    (D)
+   DefApps     (L)      matlab/r2020a               oneapi/2024.1.0
+   aocc/5.0.0           matlab/r2024a        (D)    oneapi/2025.1.1 (D)
+   cuda/12.6.3          miniforge3/24.11.3-0        vasp/6.4.2
+   gcc/12.4.0  (L,D)    mkl/2024.1.0                vasp/6.5.1      (D)
+
+  Where:
+   D:  Default Module
+   L:  Module is loaded
+
+If the avail list is too long consider trying:
+
+"module --default avail" or "ml -d av" to just list the default modules.
+"module overview" or "ml ov" to display the number of modules for each name.
+
+Use "module spider" to find all possible modules and extensions.
+Use "module keyword key1 key2 ..." to search for all possible modules matching any of
+the "keys".
+
+

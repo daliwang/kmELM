@@ -5,7 +5,7 @@ set -e
 # Create a test kmELMcase with dataset created by kiloCraft for DATM with I1850CNPRDCTCBC compset
 
 KILOCRAFT_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kiloCraft/"
-KMELM_ROOT=$(git rev-parse --show-toplevel)
+KMELM_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kmELM/"
 KMELM_CASE_ROOT="${KMELM_ROOT}/e3sm_cases/"
 KMELM_RUN_ROOT="${KMELM_ROOT}/e3sm_runs/"
 
@@ -38,7 +38,7 @@ CASE_COMPSET="I1850CNPRDCTCBC"
 # Define the experiment data group (Domain and forcing data specific group)
 
 # Define the case directory
-CASEDIR="$KMELM_CASE_ROOT/${TES_DOMAIN_FORCING_GROUP_ID}/uELM_${EXPID}_${CASE_COMPSET}_final"
+CASEDIR="$KMELM_CASE_ROOT/${TES_DOMAIN_FORCING_GROUP_ID}/uELM_${EXPID}_${CASE_COMPSET}"
 # Define the case data directory
 CASE_DATA="${TES_DATA_ROOT}/${TES_DOMAIN_FORCING_GROUP_ID}/${EXPID}"
 # Define the domain file
@@ -92,13 +92,11 @@ cd "${CASEDIR}"
 ./xmlchange DATM_CLMNCEP_YR_END="1999"
 ./xmlchange DATM_CLMNCEP_YR_ALIGN="1990"
 
+./xmlchange ELM_FORCE_COLDSTART="on"
+
 ./xmlchange CONTINUE_RUN="FALSE"
-./xmlchange ELM_ACCELERATED_SPINUP="off"
-
-./xmlchange ELM_BLDNML_OPTS="-bgc bgc -nutrient cnp -nutrient_comp_pathway rd  -soil_decomp ctc -methane"
-./xmlchange RUN_TYPE="startup"
-./xmlchange RUN_STARTDATE="0401-01-01"
-
+./xmlchange ELM_ACCELERATED_SPINUP="on"
+./xmlchange  --append ELM_BLDNML_OPTS="-bgc_spinup on"
 
 echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
       spinup_state = 1
@@ -113,7 +111,7 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 ./xmlchange NTASKS="1"
 ./xmlchange NTASKS_PER_INST="1"
 ./xmlchange MAX_MPITASKS_PER_NODE="1"
-./xmlchange JOB_WALLCLOCK_TIME="6:00:00"
+./xmlchange JOB_WALLCLOCK_TIME="2:00:00"
 
 ./case.setup --reset
 
@@ -123,5 +121,5 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 ./case.build
 
-./case.submit
+#./case.submit
 

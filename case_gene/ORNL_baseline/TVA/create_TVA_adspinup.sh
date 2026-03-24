@@ -5,14 +5,13 @@ set -e
 # Create a test kmELMcase with dataset created by kiloCraft for DATM with I1850CNPRDCTCBC compset
 
 KILOCRAFT_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kiloCraft/"
-KMELM_ROOT=$(git rev-parse --show-toplevel)
+KMELM_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kmELM/"
 KMELM_CASE_ROOT="${KMELM_ROOT}/e3sm_cases/"
 KMELM_RUN_ROOT="${KMELM_ROOT}/e3sm_runs/"
 
 # Define the root directories for the E3SM data and source code
 E3SM_SRC_ROOT="${KMELM_ROOT}/E3SM/"
 E3SM_DIN="//gpfs/wolf2/cades/cli185/world-shared/e3sm"
-
 echo "KILOCRAFT_ROOT: $KILOCRAFT_ROOT"
 echo "KMELM_ROOT: $KMELM_ROOT"
 echo "KMELM_CASE_ROOT: $KMELM_CASE_ROOT"
@@ -26,25 +25,27 @@ TES_DATA_ROOT="$KILOCRAFT_ROOT/TES_cases_data/"
 TES_DOMAIN_FORCING_GROUP_ID="Daymet_ERA5_TESSFA2"
 # Define the data group ID (Used in the domain and surface data file names)
 TES_DATA_GROUP_ID="TES_SE"
-
 # Define the root directory for the kmELM case experiments
 #EXP_CASE_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kmELM/e3sm_cases/"
 # Define the root directory for the kmELM case experiments
 #EXP_RUN_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kmELM/e3sm_runs/"
 
 # Define the experiment ID
-EXPID="NC1PT"
+EXPID="TVA"
 CASE_COMPSET="I1850CNPRDCTCBC"
 # Define the experiment data group (Domain and forcing data specific group)
 
 # Define the case directory
-CASEDIR="$KMELM_CASE_ROOT/${TES_DOMAIN_FORCING_GROUP_ID}/uELM_${EXPID}_${CASE_COMPSET}_final"
+CASEDIR="$KMELM_CASE_ROOT/${TES_DOMAIN_FORCING_GROUP_ID}/uELM_${EXPID}_${CASE_COMPSET}"
 # Define the case data directory
+# CASE_DATA="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 CASE_DATA="${TES_DATA_ROOT}/${TES_DOMAIN_FORCING_GROUP_ID}/${EXPID}"
+echo "CASE_DATA: $CASE_DATA"
+
 # Define the domain file
-DOMAIN_FILE="${EXPID}_domain.lnd.${TES_DATA_GROUP_ID}.4km.1d.c251003.nc"
+DOMAIN_FILE=$(ls -1 ${CASE_DATA}/domain_surfdata/${EXPID}_domain.lnd.${TES_DATA_GROUP_ID}.4km.1d.c*.nc 2>/dev/null | sort | tail -n1 | xargs -r basename)
 # Define the surface data file
-SURFDATA_FILE="${EXPID}_surfdata.${TES_DATA_GROUP_ID}.4km.1d.NLCD.c251003.nc"
+SURFDATA_FILE=$(ls -1 ${CASE_DATA}/domain_surfdata/${EXPID}_surfdata.${TES_DATA_GROUP_ID}.4km.1d.NLCD.c*.nc 2>/dev/null | sort | tail -n1 | xargs -r basename)
 
 echo "EXPID: $EXPID"
 echo "EXP_DATA_GROUP: $EXP_DATA_GROUP"
@@ -92,13 +93,11 @@ cd "${CASEDIR}"
 ./xmlchange DATM_CLMNCEP_YR_END="1999"
 ./xmlchange DATM_CLMNCEP_YR_ALIGN="1990"
 
+./xmlchange ELM_FORCE_COLDSTART="on"
+
 ./xmlchange CONTINUE_RUN="FALSE"
-./xmlchange ELM_ACCELERATED_SPINUP="off"
-
-./xmlchange ELM_BLDNML_OPTS="-bgc bgc -nutrient cnp -nutrient_comp_pathway rd  -soil_decomp ctc -methane"
-./xmlchange RUN_TYPE="startup"
-./xmlchange RUN_STARTDATE="0401-01-01"
-
+./xmlchange ELM_ACCELERATED_SPINUP="on"
+./xmlchange  --append ELM_BLDNML_OPTS="-bgc_spinup on"
 
 echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
       spinup_state = 1
@@ -111,9 +110,14 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 # Computational resources settings
 ./xmlchange NTASKS="1"
+./xmlchange NTASKS_LND="1280"
+./xmlchange NTASKS_ATM="100"
+./xmlchange NTASKS_CPL="100"
+
 ./xmlchange NTASKS_PER_INST="1"
-./xmlchange MAX_MPITASKS_PER_NODE="1"
-./xmlchange JOB_WALLCLOCK_TIME="6:00:00"
+./xmlchange MAX_MPITASKS_PER_NODE="128"
+
+./xmlchange JOB_WALLCLOCK_TIME="24:00:00"
 
 ./case.setup --reset
 
@@ -123,5 +127,5 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 ./case.build
 
-./case.submit
+#./case.submit
 
