@@ -23,3 +23,29 @@ git submodule update --init --recursive
 ```
 
 ## Build and Run
+
+## E3SM land developer testing (Frontier)
+
+Full procedure: [`docs/e3sm_land_developer_testing_procedure.md`](docs/e3sm_land_developer_testing_procedure.md).
+
+`create_test` compiles on the login node and submits Slurm jobs for the runs. Launch the driver with `nohup` so logout does not kill compile/submit. Do not wrap the whole suite in one `sbatch` script.
+
+```bash
+cd /lustre/orion/cli115/world-shared/wangd/kmELM/scripts
+
+# Step 1: generate gold files from parent master
+nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate.nohup.log 2>&1 &
+
+# Wait until generate jobs finish (queue empty and cs.status is clean), then:
+# Step 2: compare the development branch
+nohup ./e3sm_land_developer_compare.sh > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 &
+```
+
+Monitor:
+
+```bash
+tail -f /lustre/orion/cli115/world-shared/wangd/kmELM/docs/e3sm_land_developer_compare.nohup.log
+module load cray-python/3.11.7
+/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.a899004464   # generate
+/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.fbfcc93f52   # compare
+```
