@@ -1,8 +1,8 @@
 #!/bin/bash
-# Step 1: generate e3sm_land_developer baselines from parent master.
+# Step 1: generate e3sm_land_developer baselines from parent hash (BASELINE_NAME).
 #
 # Launch with nohup on a login node (keeps compile/submit alive after logout):
-#   nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate.nohup.log 2>&1 &
+#   nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate_${BASELINE_NAME}.nohup.log 2>&1 &
 #
 # Do not start compare until cs.status.${BASELINE_NAME} shows generate jobs finished.
 
@@ -25,7 +25,7 @@ echo "cs.status:       ${SCRATCH_ROOT}/cs.status.${BASELINE_NAME}"
 echo
 
 cd "${E3SMROOT}"
-echo "Checking out ${BASELINE_NAME} (detached parent master)..."
+echo "Checking out ${BASELINE_NAME} (detached parent hash for gold)..."
 git checkout "${BASELINE_NAME}"
 git submodule update --init
 echo "HEAD: $(git log -1 --format='%h %s')"

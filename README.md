@@ -26,26 +26,34 @@ git submodule update --init --recursive
 
 ## E3SM land developer testing (Frontier)
 
-Full procedure: [`docs/e3sm_land_developer_testing_procedure.md`](docs/e3sm_land_developer_testing_procedure.md).
+Full procedure: [`docs/e3sm_land_developer_testing_procedure.md`](docs/e3sm_land_developer_testing_procedure.md).  
+Results (campaign 1 complete; campaign 2 in progress): [`docs/e3sm_land_developer_testing_results.md`](docs/e3sm_land_developer_testing_results.md).
 
 `create_test` compiles on the login node and submits Slurm jobs for the runs. Launch the driver with `nohup` so logout does not kill compile/submit. Do not wrap the whole suite in one `sbatch` script.
+
+Active campaign (2026-08-17) is **maint-3.0** gold `34bd782d18` vs branch `lnd/port-clm-cryosphere-fixes-maint-3.0`. Settings: `scripts/e3sm_land_developer.conf.sh`. Campaign 1 gold `baselines/a899004464/` is kept and not reused.
 
 ```bash
 cd /lustre/orion/cli115/world-shared/wangd/kmELM/scripts
 
-# Step 1: generate gold files from parent master
-nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate.nohup.log 2>&1 &
+# Step 1: generate gold files from parent maint-3.0
+nohup ./e3sm_land_developer_generate.sh \
+  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 &
 
 # Wait until generate jobs finish (queue empty and cs.status is clean), then:
-# Step 2: compare the development branch
-nohup ./e3sm_land_developer_compare.sh > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 &
+# Step 2: compare the maint-3.0 development branch
+nohup ./e3sm_land_developer_compare.sh \
+  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 &
 ```
 
 Monitor:
 
 ```bash
-tail -f /lustre/orion/cli115/world-shared/wangd/kmELM/docs/e3sm_land_developer_compare.nohup.log
+tail -f /lustre/orion/cli115/world-shared/wangd/kmELM/docs/e3sm_land_developer_generate_34bd782d18.nohup.log
 module load cray-python/3.11.7
-/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.a899004464   # generate
-/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.fbfcc93f52   # compare
+/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.34bd782d18   # generate (campaign 2)
+# /lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.3c77ed78f3   # compare (after generate)
+# campaign 1 (complete):
+# /lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.a899004464
+# /lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.fbfcc93f52
 ```

@@ -4,6 +4,7 @@
 # Requires the same MY_BASELINE_DIR and BASELINE_NAME as generate.
 # Launch with nohup on a login node (keeps compile/submit alive after logout):
 #   nohup ./e3sm_land_developer_compare.sh > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 &
+# Prefer a campaign-specific log, e.g. e3sm_land_developer_compare_<DEV_ID>.nohup.log
 
 set -euo pipefail
 

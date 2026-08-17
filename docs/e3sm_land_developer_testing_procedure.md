@@ -1,10 +1,15 @@
 # E3SM land developer testing — procedure and Frontier paths
 
-**Date:** 2026-08-14  
-**Machine:** Frontier (`login03`)  
-**E3SM tree:** `/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM`  
-**Branch under test:** `lnd/port-clm-cryosphere-fixes-master` (`fbfcc93f52`)  
-**Parent master:** `a899004464` (fork `origin/master`, synced 2026-08-13)
+**Updated:** 2026-08-17  
+**Machine:** Frontier (`login` nodes)  
+**E3SM tree:** `/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM`
+
+Active settings live in `kmELM/scripts/e3sm_land_developer.conf.sh`. Gold for each parent hash is kept under `kmELM/baselines/<hash>/` and is **not** overwritten by a later campaign.
+
+| Campaign | Date | Parent / gold (`-b`) | Branch under test | Status | Results |
+|---|---|---|---|---|---|
+| **2 — maint-3.0** | 2026-08-17 | `maint-3.0` @ `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | generate launched | this file + results note (in progress) |
+| 1 — master | 2026-08-14 | fork `master` @ `a899004464` | `lnd/port-clm-cryosphere-fixes-master` @ `fbfcc93f52` | **complete** | [`e3sm_land_developer_testing_results.md`](e3sm_land_developer_testing_results.md) |
 
 Primary home: **`kmELM/docs/`** (this file), matching other experiment notes.
 
@@ -34,18 +39,20 @@ There are two different baseline roots on Frontier. Use the **personal** one for
 | Prior personal PR tree | `/lustre/orion/cli115/world-shared/wangd/E3SM/PRtest_scratch/baselines` | Older kmELM PR (`PR_kmelm_03312025`); do not mix with the new master hash |
 | Shared E3SM gold | `/lustre/orion/cli115/world-shared/e3sm/baselines/frontier/$COMPILER` | Machine default `BASELINE_ROOT`. **Do not `-g` here** |
 
-Recommended settings for this campaign:
+Recommended settings for the **active** (maint-3.0) campaign:
 
 ```bash
 export MY_BASELINE_DIR=/lustre/orion/cli115/world-shared/wangd/kmELM/baselines
-export BASELINE_NAME=a899004464
+export BASELINE_NAME=34bd782d18
 ```
 
 After generate, gold files land in:
 
 ```text
-/lustre/orion/cli115/world-shared/wangd/kmELM/baselines/a899004464/
+/lustre/orion/cli115/world-shared/wangd/kmELM/baselines/34bd782d18/
 ```
+
+Campaign 1 gold remains at `.../baselines/a899004464/` and must not be reused as the maint-3.0 reference.
 
 `mkdir -p` is not required; `create_test -g` creates the tree. Keep generate and compare on the **same** `MY_BASELINE_DIR` and `BASELINE_NAME`.
 
@@ -88,22 +95,26 @@ Launch with **`nohup`** on a Frontier login node. `create_test` compiles here an
 ```bash
 cd /lustre/orion/cli115/world-shared/wangd/kmELM/scripts
 
-# Step 1 — generate gold from parent master
-nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate.nohup.log 2>&1 &
+# Step 1 — generate gold from parent maint-3.0 (new directory, does not touch a899004464)
+nohup ./e3sm_land_developer_generate.sh \
+  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 &
 
-# Wait until ${SCRATCH}/cs.status.a899004464 is clean and squeue is empty, then:
-# Step 2 — compare the development branch
-nohup ./e3sm_land_developer_compare.sh > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 &
+# Wait until ${SCRATCH}/cs.status.34bd782d18 is clean and squeue is empty, then:
+# Step 2 — compare the maint-3.0 development branch
+nohup ./e3sm_land_developer_compare.sh \
+  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 &
 ```
 
-Follow the driver log with `tail -f ../docs/e3sm_land_developer_*.nohup.log`. Shared paths live in `e3sm_land_developer.conf.sh` (`MY_BASELINE_DIR`, hashes, compiler, project).
+Follow the driver log with `tail -f ../docs/e3sm_land_developer_*34bd782d18*.nohup.log` (generate) or the compare log after step 2. Shared paths live in `e3sm_land_developer.conf.sh` (`MY_BASELINE_DIR`, hashes, compiler, project).
+
+Campaign 1 (2026-08-14) used `cs.status.a899004464` / `cs.status.fbfcc93f52` and logs `e3sm_land_developer_compare.nohup.log`, `e3sm_land_developer_compare_fbfcc93f52.log`.
 
 ### Step 0 — variables
 
 ```bash
 export E3SMROOT=/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM
 export MY_BASELINE_DIR=/lustre/orion/cli115/world-shared/wangd/kmELM/baselines
-export BASELINE_NAME=a899004464          # parent master hash
+export BASELINE_NAME=34bd782d18          # parent maint-3.0 hash
 export PROJECT=cli115
 export MAIL_USER=wangd@ornl.gov          # optional
 ```
@@ -116,7 +127,7 @@ Test cases (build/run) go to the machine scratch root, not the baseline dir:
 
 Override with `--test-root` / `--output-root` only if you want them under `kmELM` instead.
 
-### Step 1 — generate baselines from parent master
+### Step 1 — generate baselines from parent hash
 
 Checkout the hash this branch was built on, then generate (`-g`). Cases are named `*.G.*`.
 
@@ -133,7 +144,7 @@ cd cime/scripts
   -b ${BASELINE_NAME} \
   -t ${BASELINE_NAME} \
   -p ${PROJECT} \
-  --walltime 00:45:00 \
+  --walltime 01:30:00 \
   --mail-user ${MAIL_USER} \
   --mail-type fail \
   -g -v -j 4
@@ -155,10 +166,10 @@ Use the **same** `--baseline-root` and `-b`. Change `-t` so generate and compare
 
 ```bash
 cd ${E3SMROOT}
-git checkout lnd/port-clm-cryosphere-fixes-master
+git checkout lnd/port-clm-cryosphere-fixes-maint-3.0
 git submodule update --init
 
-DEV_ID=$(git rev-parse --short=10 HEAD)   # fbfcc93f52
+DEV_ID=$(git rev-parse --short=10 HEAD)   # 3c77ed78f3
 
 cd cime/scripts
 ./create_test e3sm_land_developer \
@@ -168,7 +179,7 @@ cd cime/scripts
   -b ${BASELINE_NAME} \
   -t ${DEV_ID} \
   -p ${PROJECT} \
-  --walltime 00:45:00 \
+  --walltime 01:30:00 \
   --mail-user ${MAIL_USER} \
   --mail-type fail \
   -c -v -j 4
@@ -196,36 +207,41 @@ Expected for this branch:
 
 ## Commits on the branch under test
 
-On `a899004464`:
+Same five ELM science commits on both campaigns. Campaign 2 cherry-picks them onto `maint-3.0` (`34bd782d18`); campaign 1 had them on `master` (`a899004464`).
 
-1. Port CLM fractional-snow energy and melt-compaction fixes  
-2. Port CLM bedrock heat capacity fix in SoilTemperatureMod  
-3. Port CLM active-element masking for ELM accumulators  
-4. Bug fixes for surface water runoff calculation  
-5. Fix snow balance accounting issue  
+| Campaign 2 (maint-3.0) | Campaign 1 (master) | Subject |
+|---|---|---|
+| `36deec7f46` | `c304fff2d1` | Port CLM fractional-snow energy and melt-compaction fixes |
+| `a63fb07099` | `3f7fd0f8cb` | Port CLM bedrock heat capacity fix in SoilTemperatureMod |
+| `45e8c6e260` | `5bdf5f2212` | Port CLM active-element masking for ELM accumulators |
+| `1b19ba5e35` | `4b7a01afc3` | Bug fixes for surface water runoff calculation |
+| `3c77ed78f3` | `fbfcc93f52` | Fix snow balance accounting issue |
 
 Not included: CPL_BYPASS longitude lookup, CRUJRA/OLMT, Pathfinder machine files.
 
 ---
 
-## Checklist before launch
+## Checklist before launch (campaign 2)
 
 - [ ] Confirm suite: `e3sm_land_developer` (not full `e3sm_developer`)
 - [ ] Confirm compiler: `craygnu`
 - [ ] `MY_BASELINE_DIR` is the **personal** kmELM path above
-- [ ] Generate from `a899004464`, then compare from `lnd/port-clm-cryosphere-fixes-master`
-- [ ] Same `-b a899004464` for both steps
-- [ ] Different `-t` for generate vs compare
-- [ ] Project `cli115`; queue/walltime acceptable on Frontier
+- [ ] Generate from `34bd782d18`, then compare from `lnd/port-clm-cryosphere-fixes-maint-3.0`
+- [ ] Same `-b 34bd782d18` for both steps (do **not** point `-b` at `a899004464`)
+- [ ] Different `-t` for generate vs compare (`34bd782d18` vs `3c77ed78f3`)
+- [ ] Project `cli115`; walltime `01:30:00` (r05 tests timed out at 45 min in campaign 1)
 - [ ] Launch generate and compare with `nohup` so `create_test` is not killed on logout (do not `sbatch` the whole suite)
 
 ---
 
 ## After tests finish
 
-Save a short results note alongside this file, for example `e3sm_land_developer_testing_results.md`, with:
+- Campaign 1 (master, complete): [`e3sm_land_developer_testing_results.md`](e3sm_land_developer_testing_results.md)
+- Campaign 2 (maint-3.0): append a section to that same results file when `cs.status.34bd782d18` and `cs.status.3c77ed78f3` are final
+
+Record:
 
 - `cs.status` summary
-- Tests that DIFF vs `a899004464`
+- Tests that DIFF vs the **campaign parent** (`34bd782d18` for campaign 2, `a899004464` for campaign 1)
 - Whether diffs match the five science commits
 - Scratch and baseline paths actually used

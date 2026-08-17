@@ -1,0 +1,7 @@
+# Personal CIME gold (large; keep on Lustre, not in git)
+baselines/
+
+# create_test driver logs
+docs/*.nohup.log
+docs/e3sm_land_developer_generate_*.log
+docs/e3sm_land_developer_compare_*.log
