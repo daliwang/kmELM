@@ -19,7 +19,7 @@ DEV_BRANCH="lnd/port-clm-cryosphere-fixes-maint-3.0"
 
 SUITE="e3sm_land_developer"
 MACHINE="frontier"
-COMPILER="craygnu"
+COMPILER="gnu"
 PROJECT="cli115"
 # 01:30:00: two r05 tests hit 45 min on the 2026-08-14 master campaign.
 WALLTIME="01:30:00"

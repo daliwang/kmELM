@@ -14,8 +14,8 @@ Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_test
 ## Campaign 2 — maint-3.0 (in progress)
 
 **Date:** 2026-08-17  
-**Machine:** Frontier (`craygnu`, project `cli115`)  
-**Status:** Personal gold generate **launched**. Compare against `lnd/port-clm-cryosphere-fixes-maint-3.0` starts only after `cs.status.34bd782d18` is clean.
+**Machine:** Frontier (`gnu`, project `cli115`)  
+**Status:** First generate attempt failed (`craygnu` is not valid on `maint-3.0`). Relaunching with compiler **`gnu`**. Compare starts only after `cs.status.34bd782d18` is clean.
 
 | Item | Value |
 |---|---|
@@ -28,6 +28,7 @@ Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_test
 | Gold files | `/lustre/orion/cli115/world-shared/wangd/kmELM/baselines/34bd782d18/` |
 | Scratch / `cs.status` | `/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch` |
 | Walltime | `01:30:00` (campaign 1 r05 tests timed out at 45 min) |
+| Compiler | `gnu` (not `craygnu`; that name does not exist on this tag) |
 | Driver log | `docs/e3sm_land_developer_generate_34bd782d18.nohup.log` |
 
 ```bash

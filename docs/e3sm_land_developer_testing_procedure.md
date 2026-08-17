@@ -84,7 +84,10 @@ Do **not** confuse with:
 | `e3sm_developer` | Land + atmosphere + sea ice + MPAS cryo + GCAM + extra coupled tests |
 | `e3sm_cryo_developer` | MPAS ice-shelf / ocean, **not** ELM snow/soil |
 
-Compiler for land I-compsets on Frontier: **`craygnu`** (CPU), same as kmELM f09 cases. Default compiler list starts with `craygnu-mphipcc` (GPU); pass `--compiler craygnu` explicitly.
+Compiler for land I-compsets on Frontier:
+
+- Campaign 2 (`maint-3.0`): **`gnu`** (CPU). `craygnu` is not a valid compiler name on this tag.
+- Campaign 1 (`master` @ `a899004464`): **`craygnu`**.
 
 ---
 
@@ -139,7 +142,7 @@ git submodule update --init
 cd cime/scripts
 ./create_test e3sm_land_developer \
   --machine frontier \
-  --compiler craygnu \
+  --compiler gnu \
   --baseline-root ${MY_BASELINE_DIR} \
   -b ${BASELINE_NAME} \
   -t ${BASELINE_NAME} \
@@ -174,7 +177,7 @@ DEV_ID=$(git rev-parse --short=10 HEAD)   # 3c77ed78f3
 cd cime/scripts
 ./create_test e3sm_land_developer \
   --machine frontier \
-  --compiler craygnu \
+  --compiler gnu \
   --baseline-root ${MY_BASELINE_DIR} \
   -b ${BASELINE_NAME} \
   -t ${DEV_ID} \
@@ -224,7 +227,7 @@ Not included: CPL_BYPASS longitude lookup, CRUJRA/OLMT, Pathfinder machine files
 ## Checklist before launch (campaign 2)
 
 - [ ] Confirm suite: `e3sm_land_developer` (not full `e3sm_developer`)
-- [ ] Confirm compiler: `craygnu`
+- [ ] Confirm compiler: `gnu` (not `craygnu`; that name is invalid on `maint-3.0`)
 - [ ] `MY_BASELINE_DIR` is the **personal** kmELM path above
 - [ ] Generate from `34bd782d18`, then compare from `lnd/port-clm-cryosphere-fixes-maint-3.0`
 - [ ] Same `-b 34bd782d18` for both steps (do **not** point `-b` at `a899004464`)
