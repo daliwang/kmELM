@@ -5,7 +5,7 @@ set -euo pipefail
 # with ERA5 6hr remapped to f09 (DATM_MODE=ERAf09).
 #
 # Forcing cycle: 20 years (1980-1999)
-# Simulation length: 400 years (20-year segments x 20 via RESUBMIT)
+# Simulation length: 400 years (100-year segments x 4 via RESUBMIT)
 #
 # Do not submit until ERA5_6hr_f09 has all months for 1980-1999 (incl. 1994).
 
@@ -23,7 +23,7 @@ CASE_NAME="I1850ERACNPRDCTCBC_f09_adspinup"
 CASEDIR="${E3SM_SRCROOT}/e3sm_cases/${CASE_NAME}"
 
 # PE layout (tune as needed). Smoke used 128; production f09 needs more.
-NTASKS_ALL="${NTASKS_ALL:-1024}"
+NTASKS_ALL="${NTASKS_ALL:-1280}"
 
 echo "E3SM_SRCROOT: ${E3SM_SRCROOT}"
 echo "CASEDIR: ${CASEDIR}"
@@ -69,22 +69,24 @@ cd "${CASEDIR}"
 ./xmlchange ROF_NCPL=4
 ./xmlchange ICE_NCPL=4
 
-# 400 years total: 20-year segments, first + 19 resubmits
+# 400 years total: 100-year segments, first + 3 resubmits
 ./xmlchange STOP_OPTION=nyears
-./xmlchange STOP_N=20
+./xmlchange STOP_N=100
 ./xmlchange REST_OPTION=nyears
-./xmlchange REST_N=20
-./xmlchange RESUBMIT=19
+./xmlchange REST_N=100
+./xmlchange RESUBMIT=3
 ./xmlchange CONTINUE_RUN=FALSE
 
 ./xmlchange ELM_FORCE_COLDSTART=on
 ./xmlchange ELM_ACCELERATED_SPINUP=on
 ./xmlchange --append ELM_BLDNML_OPTS="-bgc_spinup on"
 
-# Frontier batch max walltime is typically 6 hours
-./xmlchange JOB_WALLCLOCK_TIME=06:00:00
-./xmlchange USER_REQUESTED_WALLTIME=06:00:00
+# Frontier batch max walltime is 2 hours
+./xmlchange JOB_WALLCLOCK_TIME=02:00:00
+./xmlchange USER_REQUESTED_WALLTIME=02:00:00
 
+# CPU land layout: 20 nodes x 64 MPI/node = 1280 (override Frontier GPU default of 8/node)
+./xmlchange MAX_MPITASKS_PER_NODE=64
 ./xmlchange NTASKS="${NTASKS_ALL}"
 ./xmlchange NTASKS_ATM="${NTASKS_ALL}"
 ./xmlchange NTASKS_LND="${NTASKS_ALL}"

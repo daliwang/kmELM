@@ -5,7 +5,7 @@ set -euo pipefail
 # with ERA5 6hr remapped to f09 (DATM_MODE=ERAf09).
 #
 # Forcing cycle: 20 years (1980-1999) — same as AD
-# Simulation length: 800 years (20-year segments x 40 via RESUBMIT)
+# Simulation length: 800 years (100-year segments x 8 via RESUBMIT)
 # Initial condition: AD restart at 0401-01-01 from adspinup case
 
 E3SM_DIN="/lustre/orion/cli115/world-shared/e3sm/inputdata"
@@ -24,7 +24,7 @@ CASEDIR="${E3SM_SRCROOT}/e3sm_cases/${CASE_NAME}"
 
 AD_FINIDAT="${E3SM_SRCROOT}/e3sm_runs/${AD_CASE_NAME}/run/${AD_CASE_NAME}.elm.r.0401-01-01-00000.nc"
 
-NTASKS_ALL="${NTASKS_ALL:-1024}"
+NTASKS_ALL="${NTASKS_ALL:-1280}"
 
 echo "E3SM_SRCROOT: ${E3SM_SRCROOT}"
 echo "CASEDIR: ${CASEDIR}"
@@ -67,21 +67,22 @@ cd "${CASEDIR}"
 ./xmlchange ROF_NCPL=4
 ./xmlchange ICE_NCPL=4
 
-# 800 years total: 20-year segments, first + 39 resubmits
+# 800 years total: 100-year segments, first + 7 resubmits
 ./xmlchange STOP_OPTION=nyears
-./xmlchange STOP_N=20
+./xmlchange STOP_N=100
 ./xmlchange REST_OPTION=nyears
-./xmlchange REST_N=20
-./xmlchange RESUBMIT=39
+./xmlchange REST_N=100
+./xmlchange RESUBMIT=7
 ./xmlchange CONTINUE_RUN=FALSE
 
 ./xmlchange ELM_FORCE_COLDSTART=off
 ./xmlchange ELM_ACCELERATED_SPINUP=off
 
-# Frontier batch max walltime is typically 6 hours
-./xmlchange JOB_WALLCLOCK_TIME=06:00:00
-./xmlchange USER_REQUESTED_WALLTIME=06:00:00
+# Frontier batch max walltime is 2 hours
+./xmlchange JOB_WALLCLOCK_TIME=02:00:00
+./xmlchange USER_REQUESTED_WALLTIME=02:00:00
 
+./xmlchange MAX_MPITASKS_PER_NODE=64
 ./xmlchange NTASKS="${NTASKS_ALL}"
 ./xmlchange NTASKS_ATM="${NTASKS_ALL}"
 ./xmlchange NTASKS_LND="${NTASKS_ALL}"

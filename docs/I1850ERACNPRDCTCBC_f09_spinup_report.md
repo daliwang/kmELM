@@ -22,18 +22,18 @@ Thin wrappers also exist under `scripts/frontier/` for convenience.
 
 - Case: `.../E3SM/e3sm_cases/I1850ERACNPRDCTCBC_f09_adspinup`
 - Script: `case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_adspinup.sh`
-- Length: **400 yr** (`STOP_N=20`, `RESUBMIT=19`, `REST_N=20`)
+- Length: **400 yr** (`STOP_N=100`, `RESUBMIT=3`, `REST_N=100`)
 - AD on: `ELM_ACCELERATED_SPINUP=on`, `spinup_state=1`, cold start `RUN_STARTDATE=0001-01-01`
-- Walltime: **06:00:00**
+- Walltime: **02:00:00**; PE layout: 1280 tasks, 64 MPI/node
 - Expected end restart: `.../e3sm_runs/..._adspinup/run/..._adspinup.elm.r.0401-01-01-00000.nc`
 
 ### Final — `I1850ERACNPRDCTCBC_f09_finalspinup`
 
 - Case: `.../E3SM/e3sm_cases/I1850ERACNPRDCTCBC_f09_finalspinup`
 - Script: `case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_finalspinup.sh`
-- Length: **800 yr** (`STOP_N=20`, `RESUBMIT=39`)
+- Length: **800 yr** (`STOP_N=100`, `RESUBMIT=7`, `REST_N=100`)
 - `finidat` from AD 0401 restart; `spinup_state=0`; `ELM_ACCELERATED_SPINUP=off`; `RUN_STARTDATE=0401-01-01`
-- Walltime: **06:00:00**
+- Walltime: **02:00:00**; PE layout: 1280 tasks, 64 MPI/node
 - Do **not** submit until AD restart `...elm.r.0401-01-01-00000.nc` exists
 
 ## Submit order
