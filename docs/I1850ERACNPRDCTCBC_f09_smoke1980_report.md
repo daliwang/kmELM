@@ -86,7 +86,7 @@ Touched under `kmELM/E3SM`:
 3. `components/data_comps/datm/cime_config/namelist_definition_datm.xml` — ERAf09 streams → `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09/...`, `datamode=CLMNCEP`, fill/tint/dtlimit maps  
    Backup: `namelist_definition_datm.xml.bak_era56hrf09`
 
-**Case script:** `kmELM/scripts/frontier/I1850ERACNPRDCTCBC_f09.sh`
+**Case script:** `kmELM/case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_smoke.sh` (wrapper: `scripts/frontier/I1850ERACNPRDCTCBC_f09.sh`)
 
 **Smoke case:**  
 `/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM/e3sm_cases/I1850ERACNPRDCTCBC_f09_smoke1980`
@@ -137,7 +137,7 @@ accum_period = max(1, nint(3600._r8/dtime))
 
 ```bash
 # Case create (or re-run script)
-bash /lustre/orion/cli115/world-shared/wangd/kmELM/scripts/frontier/I1850ERACNPRDCTCBC_f09.sh
+bash /lustre/orion/cli115/world-shared/wangd/kmELM/case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_smoke.sh
 
 # Or submit existing built case
 cd /lustre/orion/cli115/world-shared/wangd/kmELM/E3SM/e3sm_cases/I1850ERACNPRDCTCBC_f09_smoke1980
@@ -165,8 +165,12 @@ nohup /lustre/orion/cli115/world-shared/wangd/amd_env/bin/python \
 
 ---
 
-## Next steps (not done)
+## Next steps
 
-- Expand regrid beyond 1980 (batch/parallel on Frontier recommended).  
-- Production-length 1980 (or multi-year) case with full-year stream lists.  
+Spinup setup and remaining 1994 regrid are tracked in
+[I1850ERACNPRDCTCBC_f09_spinup_report.md](./I1850ERACNPRDCTCBC_f09_spinup_report.md)
+(AD 400 yr → final 800 yr; do not submit AD until 1994 complete).
+
+Still open from smoke:
+
 - Upstream / PR the `accum_period=max(1,…)` ELM fix if not already present elsewhere.
