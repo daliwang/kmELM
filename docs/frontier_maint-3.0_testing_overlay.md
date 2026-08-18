@@ -27,7 +27,7 @@ Paste-ready PR text: [`e3sm_pr_frontier_testing_note.md`](e3sm_pr_frontier_testi
 | Duplicate `use elm_varctl, only:` removal in `controlMod.F90` | No | **Tiny ELM PR / commit**, not machines XML | Yes for testing |
 | Copy master’s full Frontier `<machine>` block (`frontier_slurm`, ADIOS2/BLOSC2, …) | No | **No** — maint-3.0 CMake then fails looking for Blosc2; CIME has no `frontier_slurm` type | Never |
 
-Until a machines PR exists, Frontier land tests on `maint-3.0` should keep using this overlay. Campaign 2 gold/compare was produced that way.
+Until a machines PR exists, Frontier land tests on `maint-3.0` should keep using this overlay. Campaign 2 gold/compare was produced that way. **Campaign 2 report (complete):** [`e3sm_land_developer_campaign2_maint-3.0_report.md`](e3sm_land_developer_campaign2_maint-3.0_report.md). The machines PR is deferred to a later step.
 
 ---
 

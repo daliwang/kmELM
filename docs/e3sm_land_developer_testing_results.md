@@ -4,41 +4,42 @@ Two Frontier campaigns share this note. Gold directories are separate; campaign 
 
 | Campaign | Parent / gold | Branch | Status |
 |---|---|---|---|
-| **2 — maint-3.0** | `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | gold complete; compare running; overlay in kmELM ([note](frontier_maint-3.0_testing_overlay.md)) |
+| **2 — maint-3.0** | `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | **complete** 2026-08-18 — [report](e3sm_land_developer_campaign2_maint-3.0_report.md) |
 | 1 — master | `a899004464` | `lnd/port-clm-cryosphere-fixes-master` @ `fbfcc93f52` | **complete** 2026-08-14 |
 
 Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_testing_procedure.md).
 
 ---
 
-## Campaign 2 — maint-3.0 (in progress)
+## Campaign 2 — maint-3.0 (complete)
 
-**Date:** 2026-08-17  
-**Machine:** Frontier (`gnu`, project `cli115`)  
-**Status:** 2026-08-18 07:44 EDT — gold generate **complete** (50/50 RUN+GENERATE PASS; 2 FATES MEMLEAK FAILs, gold still written). Compare launched on `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` vs gold `34bd782d18`.
+**Full report:** [`e3sm_land_developer_campaign2_maint-3.0_report.md`](e3sm_land_developer_campaign2_maint-3.0_report.md). Overlay: [`frontier_maint-3.0_testing_overlay.md`](frontier_maint-3.0_testing_overlay.md).
+
+**Date:** 2026-08-17–18  
+**Machine:** Frontier (`craygnu` overlay, project `cli115`)  
+**Status:** Generate and compare **complete**. 50/50 RUN PASS; 45 BASELINE DIFF vs gold (expected science); 5 MOSART PASS; restarts and namelists clean; 2 FATES MEMLEAK already on parent. Machines PR saved for the next step.
 
 | Item | Value |
 |---|---|
 | Branch | [`lnd/port-clm-cryosphere-fixes-maint-3.0`](https://github.com/daliwang/E3SM/tree/lnd/port-clm-cryosphere-fixes-maint-3.0) @ `3c77ed78f3` |
 | Parent / gold | `maint-3.0` @ `34bd782d18` |
 | Suite | `e3sm_land_developer` — not full `e3sm_developer` |
-| Generate (`-g`) | `-t 34bd782d18`, cases `*.G.34bd782d18` |
-| Compare (`-c`) | `-t 3c77ed78f3`, cases `*.C.3c77ed78f3` (after generate finishes) |
+| Generate (`-g`) | `-t 34bd782d18`, cases `*.G.34bd782d18` — 50/50 GENERATE PASS |
+| Compare (`-c`) | `-t 3c77ed78f3`, cases `*.C.3c77ed78f3` — 45 BASELINE FAIL, 5 PASS |
 | Personal baseline root | `/lustre/orion/cli115/world-shared/wangd/kmELM/baselines` |
 | Gold files | `/lustre/orion/cli115/world-shared/wangd/kmELM/baselines/34bd782d18/` |
 | Scratch / `cs.status` | `/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch` |
-| Walltime | `01:30:00` (campaign 1 r05 tests timed out at 45 min) |
+| Walltime | `01:30:00` (campaign 1 r05 tests timed out at 45 min; both finished here) |
 | Compiler | `craygnu` (local overlay; same stack as campaign 1) |
-| Driver log | `docs/e3sm_land_developer_generate_34bd782d18.nohup.log` |
+| Driver logs | `docs/e3sm_land_developer_generate_34bd782d18.nohup.log`, `docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log` |
 
 ```bash
 module load cray-python/3.11.7
 /lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.34bd782d18   # generate
-# after generate finishes:
-# /lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.3c77ed78f3   # compare
+/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch/cs.status.3c77ed78f3   # compare
 ```
 
-Fill in PASS/DIFF/FAIL counts here when generate and compare complete. Do not bless into shared Frontier gold.
+Do not bless into shared Frontier gold.
 
 ---
 
