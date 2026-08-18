@@ -4,7 +4,7 @@ Two Frontier campaigns share this note. Gold directories are separate; campaign 
 
 | Campaign | Parent / gold | Branch | Status |
 |---|---|---|---|
-| **2 — maint-3.0** | `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | generate launched 2026-08-17; compare not started |
+| **2 — maint-3.0** | `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | gold complete; compare running; overlay in kmELM ([note](frontier_maint-3.0_testing_overlay.md)) |
 | 1 — master | `a899004464` | `lnd/port-clm-cryosphere-fixes-master` @ `fbfcc93f52` | **complete** 2026-08-14 |
 
 Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_testing_procedure.md).
@@ -15,7 +15,7 @@ Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_test
 
 **Date:** 2026-08-17  
 **Machine:** Frontier (`gnu`, project `cli115`)  
-**Status:** First generate attempt failed (`craygnu` is not valid on `maint-3.0`). Relaunching with compiler **`gnu`**. Compare starts only after `cs.status.34bd782d18` is clean.
+**Status:** 2026-08-18 07:44 EDT — gold generate **complete** (50/50 RUN+GENERATE PASS; 2 FATES MEMLEAK FAILs, gold still written). Compare launched on `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` vs gold `34bd782d18`.
 
 | Item | Value |
 |---|---|
@@ -28,7 +28,7 @@ Procedure: [`e3sm_land_developer_testing_procedure.md`](e3sm_land_developer_test
 | Gold files | `/lustre/orion/cli115/world-shared/wangd/kmELM/baselines/34bd782d18/` |
 | Scratch / `cs.status` | `/lustre/orion/cli115/proj-shared/wangd/e3sm_scratch` |
 | Walltime | `01:30:00` (campaign 1 r05 tests timed out at 45 min) |
-| Compiler | `gnu` (not `craygnu`; that name does not exist on this tag) |
+| Compiler | `craygnu` (local overlay; same stack as campaign 1) |
 | Driver log | `docs/e3sm_land_developer_generate_34bd782d18.nohup.log` |
 
 ```bash

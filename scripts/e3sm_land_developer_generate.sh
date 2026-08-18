@@ -1,8 +1,9 @@
 #!/bin/bash
 # Step 1: generate e3sm_land_developer baselines from parent hash (BASELINE_NAME).
 #
-# Launch with nohup on a login node (keeps compile/submit alive after logout):
-#   nohup ./e3sm_land_developer_generate.sh > ../docs/e3sm_land_developer_generate_${BASELINE_NAME}.nohup.log 2>&1 &
+# Launch so logout (and a Cursor tool shell exit) does not kill the driver:
+#   setsid nohup ./e3sm_land_developer_generate.sh \
+#     > ../docs/e3sm_land_developer_generate_${BASELINE_NAME}.nohup.log 2>&1 < /dev/null &
 #
 # Do not start compare until cs.status.${BASELINE_NAME} shows generate jobs finished.
 
@@ -25,12 +26,14 @@ echo "cs.status:       ${SCRATCH_ROOT}/cs.status.${BASELINE_NAME}"
 echo
 
 cd "${E3SMROOT}"
+reset_local_frontier_overlay
 echo "Checking out ${BASELINE_NAME} (detached parent hash for gold)..."
 git checkout "${BASELINE_NAME}"
 git submodule update --init
 echo "HEAD: $(git log -1 --format='%h %s')"
 
 load_python
+apply_frontier_lmod_workaround
 
 cd "${E3SMROOT}/cime/scripts"
 exec > >(tee -a "${LOG}") 2>&1

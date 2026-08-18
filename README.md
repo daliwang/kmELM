@@ -29,7 +29,7 @@ git submodule update --init --recursive
 Full procedure: [`docs/e3sm_land_developer_testing_procedure.md`](docs/e3sm_land_developer_testing_procedure.md).  
 Results (campaign 1 complete; campaign 2 in progress): [`docs/e3sm_land_developer_testing_results.md`](docs/e3sm_land_developer_testing_results.md).
 
-`create_test` compiles on the login node and submits Slurm jobs for the runs. Launch the driver with `nohup` so logout does not kill compile/submit. Do not wrap the whole suite in one `sbatch` script.
+`create_test` compiles on the login node and submits Slurm jobs for the runs. Launch the driver with `setsid nohup` so logout does not kill compile/submit. Do not wrap the whole suite in one `sbatch` script. On `maint-3.0`, generate/compare apply a local overlay (`craygnu` + Lmod wrapper); do not commit those E3SM files to the science branch. Overlay, what is mergeable, and whether to open a **separate machines PR**: [`docs/frontier_maint-3.0_testing_overlay.md`](docs/frontier_maint-3.0_testing_overlay.md).
 
 Active campaign (2026-08-17) is **maint-3.0** gold `34bd782d18` vs branch `lnd/port-clm-cryosphere-fixes-maint-3.0`. Settings: `scripts/e3sm_land_developer.conf.sh`. Campaign 1 gold `baselines/a899004464/` is kept and not reused.
 
@@ -37,13 +37,13 @@ Active campaign (2026-08-17) is **maint-3.0** gold `34bd782d18` vs branch `lnd/p
 cd /lustre/orion/cli115/world-shared/wangd/kmELM/scripts
 
 # Step 1: generate gold files from parent maint-3.0
-nohup ./e3sm_land_developer_generate.sh \
-  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 &
+setsid nohup ./e3sm_land_developer_generate.sh \
+  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 < /dev/null &
 
 # Wait until generate jobs finish (queue empty and cs.status is clean), then:
 # Step 2: compare the maint-3.0 development branch
-nohup ./e3sm_land_developer_compare.sh \
-  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 &
+setsid nohup ./e3sm_land_developer_compare.sh \
+  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 < /dev/null &
 ```
 
 Monitor:

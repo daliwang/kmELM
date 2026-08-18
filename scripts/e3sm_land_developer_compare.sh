@@ -2,8 +2,9 @@
 # Step 2: compare DEV_BRANCH against baselines generated in step 1.
 #
 # Requires the same MY_BASELINE_DIR and BASELINE_NAME as generate.
-# Launch with nohup on a login node (keeps compile/submit alive after logout):
-#   nohup ./e3sm_land_developer_compare.sh > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 &
+# Launch so logout (and a Cursor tool shell exit) does not kill the driver:
+#   setsid nohup ./e3sm_land_developer_compare.sh \
+#     > ../docs/e3sm_land_developer_compare.nohup.log 2>&1 < /dev/null &
 # Prefer a campaign-specific log, e.g. e3sm_land_developer_compare_<DEV_ID>.nohup.log
 
 set -euo pipefail
@@ -15,6 +16,7 @@ source "${SCRIPT_DIR}/e3sm_land_developer.conf.sh"
 mkdir -p "${LOG_DIR}"
 
 cd "${E3SMROOT}"
+reset_local_frontier_overlay
 echo "Checking out ${DEV_BRANCH}..."
 git checkout "${DEV_BRANCH}"
 git submodule update --init
@@ -42,6 +44,7 @@ echo "cs.status:       ${SCRATCH_ROOT}/cs.status.${DEV_ID}"
 echo
 
 load_python
+apply_frontier_lmod_workaround
 
 cd "${E3SMROOT}/cime/scripts"
 exec > >(tee -a "${LOG}") 2>&1

@@ -19,11 +19,17 @@ DEV_BRANCH="lnd/port-clm-cryosphere-fixes-maint-3.0"
 
 SUITE="e3sm_land_developer"
 MACHINE="frontier"
-COMPILER="gnu"
+COMPILER="craygnu"
 PROJECT="cli115"
 # 01:30:00: two r05 tests hit 45 min on the 2026-08-14 master campaign.
 WALLTIME="01:30:00"
 CREATE_TEST_JOBS=4
+# Cheap Frontier smoke on DEV_BRANCH before the full suite.
+SMOKE_WALLTIME="00:30:00"
+SMOKE_TESTS=(
+  SMS_Ly2_P1x1.1x1_smallvilleIA.IELMCNCROP.frontier_craygnu.elm-force_netcdf_pio
+  ERS.ELM_USRDAT.I1850CNPRDCTCBC.frontier_craygnu.elm-snowveg_arctic
+)
 MAIL_USER="${MAIL_USER:-wangd@ornl.gov}"
 PYTHON_MODULE="cray-python/3.11.7"
 
@@ -44,4 +50,25 @@ if sys.version_info < (3, 9):
     raise SystemExit(f"CIME needs Python >= 3.9, found {sys.version}")
 print(f"Using Python {sys.version.split()[0]} ({sys.executable})")
 PY
+}
+
+# Drop previous local overlay so git checkout of the parent/branch is clean.
+reset_local_frontier_overlay() {
+  cd "${E3SMROOT}"
+  git checkout -- \
+    cime_config/machines/config_machines.xml \
+    components/elm/src/main/controlMod.F90 \
+    2>/dev/null || true
+  rm -f \
+    cime_config/machines/cmake_macros/craygnu.cmake \
+    cime_config/machines/Depends.craygnu.cmake
+}
+
+# Local-only maint-3.0 Frontier overlay (do not commit to the science branch):
+# splice master's Frontier machine block + craygnu macros, Lmod wrapper,
+# and the gfortran-14 controlMod USE-line cleanup.
+apply_frontier_lmod_workaround() {
+  python3 "${KMELM_ROOT}/scripts/workaround_frontier_lmod_reset.py" \
+    "${E3SMROOT}/cime_config/machines/config_machines.xml" \
+    --e3sm-root "${E3SMROOT}"
 }

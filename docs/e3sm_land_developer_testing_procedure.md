@@ -8,7 +8,7 @@ Active settings live in `kmELM/scripts/e3sm_land_developer.conf.sh`. Gold for ea
 
 | Campaign | Date | Parent / gold (`-b`) | Branch under test | Status | Results |
 |---|---|---|---|---|---|
-| **2 — maint-3.0** | 2026-08-17 | `maint-3.0` @ `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | generate launched | this file + results note (in progress) |
+| **2 — maint-3.0** | 2026-08-17 | `maint-3.0` @ `34bd782d18` | `lnd/port-clm-cryosphere-fixes-maint-3.0` @ `3c77ed78f3` | gold generate complete; compare running; Frontier overlay documented in kmELM (not on the science branch) | this file + [overlay note](frontier_maint-3.0_testing_overlay.md) + results |
 | 1 — master | 2026-08-14 | fork `master` @ `a899004464` | `lnd/port-clm-cryosphere-fixes-master` @ `fbfcc93f52` | **complete** | [`e3sm_land_developer_testing_results.md`](e3sm_land_developer_testing_results.md) |
 
 Primary home: **`kmELM/docs/`** (this file), matching other experiment notes.
@@ -86,8 +86,28 @@ Do **not** confuse with:
 
 Compiler for land I-compsets on Frontier:
 
-- Campaign 2 (`maint-3.0`): **`gnu`** (CPU). `craygnu` is not a valid compiler name on this tag.
+- Campaign 2 (`maint-3.0`): **`craygnu`**, via a **local** overlay (same PrgEnv-gnu stack as campaign 1). As shipped, this tag only lists `gnu`, and those pins (`PrgEnv-gnu/8.3.3`) are gone on current Frontier. Do not commit the overlay.
 - Campaign 1 (`master` @ `a899004464`): **`craygnu`**.
+
+### Frontier overlay: master's craygnu stack on maint-3.0 CIME (local only)
+
+These SETUP/RUN failures are **not** land-science or compset bugs. maint-3.0's Frontier machine file still names the GNU compiler `gnu` and pins `PrgEnv-gnu/8.3.3`, which OLCF removed. Compsets and ELM namelist *definitions* are the same land suite; master already ships the current site GNU stack as `craygnu`.
+
+Do **not** paste master's entire Frontier `<machine>` block into maint-3.0: master also sets `ADIOS2_ROOT` / `BLOSC2_ROOT`, and maint-3.0 cmake then fails looking for Blosc2. Campaign 2 keeps maint-3.0's CIME skeleton (`BATCH_SYSTEM=slurm`, env vars, mpirun) and splices only master's GNU compiler pieces from `lnd/port-clm-cryosphere-fixes-master`:
+
+| From master | Local change on maint-3.0 |
+|---|---|
+| `craygnu` + `Core/25.03` + `PrgEnv-gnu` + `cpe/25.09` + `gcc-native/14.2` | added to `COMPILERS` / module block |
+| Lmod under `/opt/cray/pe/lmod` | rewritten (compute nodes have this path) |
+| python `cmd_path` = `lmod python` | pointed at `cime_lmod_python_wrapper.sh` (OLCF `NSPLoggingHook.lua` still exits 1) |
+| `libunwind` module | dropped (not visible to the sequential wrapper load) |
+| `craygnu.cmake` | master's file + `-lstdc++` (maint-3.0 CIME Fortran-links PIO C++ objects) |
+| `controlMod.F90` duplicate `use elm_varctl, only:` | dropped locally (gfortran 14 namelist; master already collapsed those USEs) |
+| `BATCH_SYSTEM` `frontier_slurm`, ADIOS/BLOSC env | **not** copied (maint-3.0 CIME) |
+
+Do **not** commit the patched E3SM machine/cmake/`controlMod.F90` files to `lnd/port-clm-cryosphere-fixes-maint-3.0`.
+
+**Separate E3SM PR?** Yes for the mergeable site pieces (`craygnu` + cmake + `/opt/cray/pe/lmod` paths), aimed at `maint-3.0` machines/CIME reviewers — not bundled with the cryosphere science PR. Keep the Lmod python wrapper and the `controlMod.F90` USE cleanup out of that machines PR unless land+machines agree. Full recommendation: [`frontier_maint-3.0_testing_overlay.md`](frontier_maint-3.0_testing_overlay.md). Science-PR paste text: [`e3sm_pr_frontier_testing_note.md`](e3sm_pr_frontier_testing_note.md).
 
 ---
 
@@ -98,14 +118,19 @@ Launch with **`nohup`** on a Frontier login node. `create_test` compiles here an
 ```bash
 cd /lustre/orion/cli115/world-shared/wangd/kmELM/scripts
 
-# Step 1 — generate gold from parent maint-3.0 (new directory, does not touch a899004464)
-nohup ./e3sm_land_developer_generate.sh \
-  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 &
+# Step 0.5 — two cheap cases on the bug-fix branch (no gold). Confirm overlay + RUN.
+setsid nohup ./e3sm_land_developer_smoke.sh \
+  > ../docs/e3sm_land_developer_smoke.nohup.log 2>&1 < /dev/null &
+
+# After both smoke cases RUN PASS, generate gold from parent maint-3.0
+# (does not touch a899004464). setsid keeps the driver alive if the shell exits.
+setsid nohup ./e3sm_land_developer_generate.sh \
+  > ../docs/e3sm_land_developer_generate_34bd782d18.nohup.log 2>&1 < /dev/null &
 
 # Wait until ${SCRATCH}/cs.status.34bd782d18 is clean and squeue is empty, then:
 # Step 2 — compare the maint-3.0 development branch
-nohup ./e3sm_land_developer_compare.sh \
-  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 &
+setsid nohup ./e3sm_land_developer_compare.sh \
+  > ../docs/e3sm_land_developer_compare_3c77ed78f3.nohup.log 2>&1 < /dev/null &
 ```
 
 Follow the driver log with `tail -f ../docs/e3sm_land_developer_*34bd782d18*.nohup.log` (generate) or the compare log after step 2. Shared paths live in `e3sm_land_developer.conf.sh` (`MY_BASELINE_DIR`, hashes, compiler, project).
@@ -142,7 +167,7 @@ git submodule update --init
 cd cime/scripts
 ./create_test e3sm_land_developer \
   --machine frontier \
-  --compiler gnu \
+  --compiler craygnu \
   --baseline-root ${MY_BASELINE_DIR} \
   -b ${BASELINE_NAME} \
   -t ${BASELINE_NAME} \
@@ -177,7 +202,7 @@ DEV_ID=$(git rev-parse --short=10 HEAD)   # 3c77ed78f3
 cd cime/scripts
 ./create_test e3sm_land_developer \
   --machine frontier \
-  --compiler gnu \
+  --compiler craygnu \
   --baseline-root ${MY_BASELINE_DIR} \
   -b ${BASELINE_NAME} \
   -t ${DEV_ID} \
@@ -227,13 +252,14 @@ Not included: CPL_BYPASS longitude lookup, CRUJRA/OLMT, Pathfinder machine files
 ## Checklist before launch (campaign 2)
 
 - [ ] Confirm suite: `e3sm_land_developer` (not full `e3sm_developer`)
-- [ ] Confirm compiler: `gnu` (not `craygnu`; that name is invalid on `maint-3.0`)
+- [ ] Confirm compiler: `craygnu` (local overlay on maint-3.0; same stack as campaign 1)
+- [ ] Generate/compare apply the **local** Frontier overlay (Lmod wrapper + craygnu). Do **not** commit those E3SM machine/cmake files to the science branch.
 - [ ] `MY_BASELINE_DIR` is the **personal** kmELM path above
 - [ ] Generate from `34bd782d18`, then compare from `lnd/port-clm-cryosphere-fixes-maint-3.0`
 - [ ] Same `-b 34bd782d18` for both steps (do **not** point `-b` at `a899004464`)
 - [ ] Different `-t` for generate vs compare (`34bd782d18` vs `3c77ed78f3`)
 - [ ] Project `cli115`; walltime `01:30:00` (r05 tests timed out at 45 min in campaign 1)
-- [ ] Launch generate and compare with `nohup` so `create_test` is not killed on logout (do not `sbatch` the whole suite)
+- [ ] Launch generate and compare with `setsid nohup` so `create_test` is not killed on logout (do not `sbatch` the whole suite)
 
 ---
 
