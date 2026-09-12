@@ -8,9 +8,9 @@ set -e
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"
 
 E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm"
-DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH/"
-KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/"
-E3SM_SRCROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/E3SM/"
+DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
+KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
+E3SM_SRCROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/E3SM"
 
 echo "E3SM_SRCROOT: $E3SM_SRCROOT"
 echo "E3SM_DIN: $E3SM_DIN"
@@ -49,7 +49,8 @@ cd "${CASEDIR}"
 
 ./xmlchange NTASKS_PER_INST="1"
 
-./xmlchange MAX_MPITASKS_PER_NODE="128"
+./xmlchange MAX_MPITASKS_PER_NODE="64"
+#./xmlchange MAX_MPITASKS_PER_NODE="84"
 
 ./xmlchange ATM_DOMAIN_PATH="${CASE_DATA}/domain_surfdata/"
 
