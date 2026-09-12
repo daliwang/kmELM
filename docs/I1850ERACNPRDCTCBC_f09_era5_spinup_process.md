@@ -250,8 +250,8 @@ Pathfinder conventions already used in this repo (`TES_NORTHERA5_ref.sh`):
 
 1. Check out the same E3SM branch under the Pathfinder kmELM clone; init submodules.
 2. Install Pathfinder CIME machine/compiler files if missing.
-3. Stage stock E3SM inputdata (`DIN_LOC_ROOT`) including the f09 domain and 1850 surfdata.
-4. Copy `kiloCraft/ERA5_6hr_f09` (at least 1980–1999, 2160 files + domain) and set `DIN_LOC_ROOT_CLMFORC` to the **parent** of `ERA5_6hr_f09`.
+3. Stage stock E3SM inputdata (`DIN_LOC_ROOT`) including the f09 domain and 1850 surfdata (or `WITH_STOCK=1` in the stage script).
+4. Copy `kiloCraft/ERA5_6hr_f09` (at least 1980–1999, 2160 files + a **real** domain file) to `/projects/hpcl-cli185/proj-shared/wangd/kiloCraft/ERA5_6hr_f09`. From Frontier: `MODE=spinup bash case_gene/PathFinder/ERAf09/stage_eraf09_forcing.sh`. Details: `case_gene/PathFinder/ERAf09/DATA.md`.
 5. Create scripts are in `case_gene/PathFinder/ERAf09/` (not under `E3SM/`). Cases and runs go to `${KMELM_ROOT}/e3sm_cases` and `${KMELM_ROOT}/e3sm_runs`.
 6. Keep 10-year segments until a Pathfinder smoke measures minutes per year; longer walltime can use fewer resubmits but do not change `NCPL` or total years.
 7. Smoke first (`STOP_N=5` days, `RUN_STARTDATE=1980-01-01`, `NCPL=24` to match production).
