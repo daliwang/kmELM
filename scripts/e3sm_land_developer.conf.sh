@@ -1,21 +1,27 @@
 # Shared settings for e3sm_land_developer generate/compare on Frontier.
 # Sourced by e3sm_land_developer_generate.sh and e3sm_land_developer_compare.sh.
 #
-# Active campaign (2026-08-17): maint-3.0 gold + cryosphere-fixes-maint-3.0.
-# Prior campaign (2026-08-14, keep gold): BASELINE_NAME=a899004464
-#   DEV_BRANCH=lnd/port-clm-cryosphere-fixes-master
-#   Gold: ${KMELM_ROOT}/baselines/a899004464/
+# Active campaign (2026-09-03): current master gold + cryosphere-fixes-master2.
+# Do not open the master PR until this campaign finishes.
+# Prior gold (keep, do not reuse):
+#   34bd782d18  maint-3.0 / lnd/port-clm-cryosphere-fixes-maint-3.0
+#   a899004464  older master / lnd/port-clm-cryosphere-fixes-master
 
 KMELM_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-E3SMROOT="${KMELM_ROOT}/E3SM"
+# Worktree with current master + cherry-picks. Do not use kmELM/E3SM
+# (other branch) or E3SM-pr (maint-3.0 + dirty overlay).
+E3SMROOT="${KMELM_ROOT}/E3SM-master-pr"
 MY_BASELINE_DIR="${KMELM_ROOT}/baselines"
 LOG_DIR="${KMELM_ROOT}/docs"
 
 # Parent hash used to generate gold files. Keep -b the same for compare.
-BASELINE_NAME="34bd782d18"
+BASELINE_NAME="34fb1e111e"
 
 # Development branch to compare against those gold files.
-DEV_BRANCH="lnd/port-clm-cryosphere-fixes-maint-3.0"
+DEV_BRANCH="lnd/port-clm-cryosphere-fixes-master2"
+
+# Current master already ships craygnu. The maint-3.0 Lmod overlay is off.
+APPLY_FRONTIER_OVERLAY=0
 
 SUITE="e3sm_land_developer"
 MACHINE="frontier"
@@ -53,15 +59,19 @@ PY
 }
 
 # Drop previous local overlay so git checkout of the parent/branch is clean.
+# Only remove craygnu cmake files when they are untracked overlay copies
+# (maint-3.0). On current master those files are tracked — do not delete them.
 reset_local_frontier_overlay() {
   cd "${E3SMROOT}"
   git checkout -- \
     cime_config/machines/config_machines.xml \
     components/elm/src/main/controlMod.F90 \
     2>/dev/null || true
-  rm -f \
-    cime_config/machines/cmake_macros/craygnu.cmake \
-    cime_config/machines/Depends.craygnu.cmake
+  if [[ "${APPLY_FRONTIER_OVERLAY}" == "1" ]]; then
+    rm -f \
+      cime_config/machines/cmake_macros/craygnu.cmake \
+      cime_config/machines/Depends.craygnu.cmake
+  fi
 }
 
 # Local-only maint-3.0 Frontier overlay (do not commit to the science branch):

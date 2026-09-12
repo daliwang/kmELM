@@ -1,6 +1,29 @@
 #!/bin/bash
 set -euo pipefail
 
+# CIME needs Python >= 3.9. Frontier login default is 3.6 — load cray-python
+# *before* deleting the old case so a version mismatch cannot wipe CASEROOT.
+if [[ -f /opt/cray/pe/lmod/lmod/init/bash ]]; then
+  # shellcheck disable=SC1091
+  source /opt/cray/pe/lmod/lmod/init/bash
+elif [[ -f /usr/share/lmod/lmod/init/bash ]]; then
+  # shellcheck disable=SC1091
+  source /usr/share/lmod/lmod/init/bash
+fi
+if command -v module >/dev/null 2>&1; then
+  module load cray-python/3.11.7
+fi
+python3 - <<'PY'
+import sys
+if sys.version_info < (3, 9):
+    raise SystemExit(
+        "ERROR: CIME needs Python >= 3.9, found %s (%s).\n"
+        "Load cray-python first: module load cray-python/3.11.7"
+        % (sys.version.split()[0], sys.executable)
+    )
+print("Using Python %s (%s)" % (sys.version.split()[0], sys.executable))
+PY
+
 # AD (accelerated decomposition) spinup for I1850ERACNPRDCTCBC on f09_f09
 # with ERA5 6hr remapped to f09 (DATM_MODE=ERAf09).
 #
@@ -63,18 +86,18 @@ cd "${CASEDIR}"
 ./xmlchange DATM_CLMNCEP_YR_START=1980
 ./xmlchange DATM_CLMNCEP_YR_END=1999
 
-# 6-hourly ERA forcing
-./xmlchange ATM_NCPL=4
-./xmlchange LND_NCPL=4
-./xmlchange ROF_NCPL=4
-./xmlchange ICE_NCPL=4
+# Hourly land coupling; DATM interpolates 6-hourly ERA5
+./xmlchange ATM_NCPL=24
+./xmlchange LND_NCPL=24
+./xmlchange ROF_NCPL=24
+./xmlchange ICE_NCPL=24
 
-# 400 years total: 100-year segments, first + 3 resubmits
+# 400 years total: 10-year segments (hourly dtime is ~6x slower than 6-hr NCPL=4)
 ./xmlchange STOP_OPTION=nyears
-./xmlchange STOP_N=100
+./xmlchange STOP_N=10
 ./xmlchange REST_OPTION=nyears
-./xmlchange REST_N=100
-./xmlchange RESUBMIT=3
+./xmlchange REST_N=10
+./xmlchange RESUBMIT=39
 ./xmlchange CONTINUE_RUN=FALSE
 
 ./xmlchange ELM_FORCE_COLDSTART=on

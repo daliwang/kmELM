@@ -44,7 +44,9 @@ echo "cs.status:       ${SCRATCH_ROOT}/cs.status.${DEV_ID}"
 echo
 
 load_python
-apply_frontier_lmod_workaround
+if [[ "${APPLY_FRONTIER_OVERLAY}" == "1" ]]; then
+  apply_frontier_lmod_workaround
+fi
 
 cd "${E3SMROOT}/cime/scripts"
 exec > >(tee -a "${LOG}") 2>&1

@@ -33,7 +33,9 @@ git submodule update --init
 echo "HEAD: $(git log -1 --format='%h %s')"
 
 load_python
-apply_frontier_lmod_workaround
+if [[ "${APPLY_FRONTIER_OVERLAY}" == "1" ]]; then
+  apply_frontier_lmod_workaround
+fi
 
 cd "${E3SMROOT}/cime/scripts"
 exec > >(tee -a "${LOG}") 2>&1

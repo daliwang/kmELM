@@ -1,53 +1,34 @@
 #!/bin/bash
 set -euo pipefail
 
-# CIME needs Python >= 3.9. Frontier login default is 3.6 — load cray-python
-# *before* deleting the old case so a version mismatch cannot wipe CASEROOT.
-if [[ -f /opt/cray/pe/lmod/lmod/init/bash ]]; then
-  # shellcheck disable=SC1091
-  source /opt/cray/pe/lmod/lmod/init/bash
-elif [[ -f /usr/share/lmod/lmod/init/bash ]]; then
-  # shellcheck disable=SC1091
-  source /usr/share/lmod/lmod/init/bash
-fi
-if command -v module >/dev/null 2>&1; then
-  module load cray-python/3.11.7
-fi
+# Pathfinder final (normal BGC) spinup after AD for I1850ERACNPRDCTCBC
+# on f09_f09 with ERA5 6hr remapped to f09 (DATM_MODE=ERAf09).
+#
+# Science settings match the completed Frontier case:
+#   800 years, NCPL=24, DATM 1980-1999, finidat from AD 0401 restart
+#
+# Cases are created under ${KMELM_ROOT}/e3sm_cases, not under E3SM/.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=pathfinder_eraf09_env.sh
+source "${SCRIPT_DIR}/pathfinder_eraf09_env.sh"
+
 python3 - <<'PY'
 import sys
 if sys.version_info < (3, 9):
     raise SystemExit(
-        "ERROR: CIME needs Python >= 3.9, found %s (%s).\n"
-        "Load cray-python first: module load cray-python/3.11.7"
+        "ERROR: CIME needs Python >= 3.9, found %s (%s)."
         % (sys.version.split()[0], sys.executable)
     )
 print("Using Python %s (%s)" % (sys.version.split()[0], sys.executable))
 PY
 
-# Normal (final) BGC spinup after AD for I1850ERACNPRDCTCBC on f09_f09
-# with ERA5 6hr remapped to f09 (DATM_MODE=ERAf09).
-#
-# Forcing cycle: 20 years (1980-1999) — same as AD
-# Simulation length: 800 years (100-year segments x 8 via RESUBMIT)
-# Initial condition: AD restart at 0401-01-01 from adspinup case
-
-E3SM_DIN="/lustre/orion/cli115/world-shared/e3sm/inputdata"
-FORC_ROOT="/lustre/orion/cli115/world-shared/wangd/kiloCraft"
-# Resolve kmELM root (works from case_gene/Frontier/... or scripts/frontier/)
-KMELM_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
-E3SM_SRCROOT="${KMELM_ROOT}/E3SM"
-if [ ! -d "${E3SM_SRCROOT}/cime/scripts" ]; then
-  echo "ERROR: E3SM not found at ${E3SM_SRCROOT}" >&2
-  exit 1
-fi
-
 AD_CASE_NAME="I1850ERACNPRDCTCBC_f09_adspinup"
 CASE_NAME="I1850ERACNPRDCTCBC_f09_finalspinup"
-CASEDIR="${E3SM_SRCROOT}/e3sm_cases/${CASE_NAME}"
-
-AD_FINIDAT="${E3SM_SRCROOT}/e3sm_runs/${AD_CASE_NAME}/run/${AD_CASE_NAME}.elm.r.0401-01-01-00000.nc"
-
+CASEDIR="${CASE_ROOT}/${CASE_NAME}"
+AD_FINIDAT="${RUN_ROOT}/${AD_CASE_NAME}/run/${AD_CASE_NAME}.elm.r.0401-01-01-00000.nc"
 NTASKS_ALL="${NTASKS_ALL:-1280}"
+WALLTIME="${WALLTIME:-06:00:00}"
 
 echo "E3SM_SRCROOT: ${E3SM_SRCROOT}"
 echo "CASEDIR: ${CASEDIR}"
@@ -57,16 +38,17 @@ echo "NTASKS_ALL: ${NTASKS_ALL}"
 if [ ! -f "${AD_FINIDAT}" ]; then
   echo "WARNING: AD finidat not found yet:"
   echo "  ${AD_FINIDAT}"
-  echo "Case will still be created; update user_nl_elm finidat and submit only after AD completes."
+  echo "Case will still be created; submit only after AD completes."
 fi
 
 rm -rf "${CASEDIR}"
-mkdir -p "${E3SM_SRCROOT}/e3sm_cases"
+mkdir -p "${CASE_ROOT}" "${RUN_ROOT}"
 
 "${E3SM_SRCROOT}/cime/scripts/create_newcase" \
   --case "${CASEDIR}" \
-  --mach frontier \
-  --compiler craygnu \
+  --mach "${MACH}" \
+  --compiler "${COMPILER}" \
+  --mpilib "${MPILIB}" \
   --compset I1850ERACNPRDCTCBC \
   --res f09_f09 \
   --handle-preexisting-dirs r \
@@ -74,24 +56,23 @@ mkdir -p "${E3SM_SRCROOT}/e3sm_cases"
 
 cd "${CASEDIR}"
 
+./xmlchange PIO_TYPENAME=pnetcdf
+./xmlchange PIO_NETCDF_FORMAT=64bit_data
 ./xmlchange DIN_LOC_ROOT="${E3SM_DIN}"
 ./xmlchange DIN_LOC_ROOT_CLMFORC="${FORC_ROOT}"
-./xmlchange CIME_OUTPUT_ROOT="${E3SM_SRCROOT}/e3sm_runs"
+./xmlchange CIME_OUTPUT_ROOT="${RUN_ROOT}"
 
-# Continue model clock from end of AD (year 0401)
 ./xmlchange RUN_TYPE=startup
 ./xmlchange RUN_STARTDATE=0401-01-01
 ./xmlchange DATM_CLMNCEP_YR_ALIGN=1
 ./xmlchange DATM_CLMNCEP_YR_START=1980
 ./xmlchange DATM_CLMNCEP_YR_END=1999
 
-# Hourly land coupling; DATM interpolates 6-hourly ERA5
 ./xmlchange ATM_NCPL=24
 ./xmlchange LND_NCPL=24
 ./xmlchange ROF_NCPL=24
 ./xmlchange ICE_NCPL=24
 
-# 800 years total: 10-year segments, first + 79 resubmits
 ./xmlchange STOP_OPTION=nyears
 ./xmlchange STOP_N=10
 ./xmlchange REST_OPTION=nyears
@@ -102,11 +83,10 @@ cd "${CASEDIR}"
 ./xmlchange ELM_FORCE_COLDSTART=off
 ./xmlchange ELM_ACCELERATED_SPINUP=off
 
-# Frontier batch max walltime is 2 hours
-./xmlchange JOB_WALLCLOCK_TIME=02:00:00
-./xmlchange USER_REQUESTED_WALLTIME=02:00:00
+./xmlchange JOB_WALLCLOCK_TIME="${WALLTIME}"
+./xmlchange USER_REQUESTED_WALLTIME="${WALLTIME}"
 
-./xmlchange MAX_MPITASKS_PER_NODE=64
+./xmlchange MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE}"
 ./xmlchange NTASKS="${NTASKS_ALL}"
 ./xmlchange NTASKS_ATM="${NTASKS_ALL}"
 ./xmlchange NTASKS_LND="${NTASKS_ALL}"
@@ -126,6 +106,7 @@ cat >> user_nl_elm <<EOF
 EOF
 
 ./case.setup
+./xmlchange --force JOB_QUEUE="${JOB_QUEUE}"
 ./preview_namelists
 
 echo "==== final spinup config ===="
