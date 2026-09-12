@@ -37,7 +37,7 @@ Process note: `docs/I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`
 
 Requires E3SM with `%ERAf09` (branch `lnd/clm_glacier_fixes_era5`) and Pathfinder machine files in that tree.
 
-**Forcing transfer** (from Frontier): [`DATA.md`](DATA.md) and `stage_eraf09_forcing.sh`. Copy at least 1980–1999 (`~58 GB`) into `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09` before AD/final. Smoke can start after 1980 only (`~3 GB`).
+**Forcing transfer** (run on Pathfinder, pulls from Frontier): [`DATA.md`](DATA.md) and `stage_eraf09_forcing.sh`. Copy at least 1980–1999 (`~58 GB`) into `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09` before AD/final. Smoke can start after 1980 only (`~3 GB`).
 
 ```bash
 # On Pathfinder, after E3SM and forcing are in place:
