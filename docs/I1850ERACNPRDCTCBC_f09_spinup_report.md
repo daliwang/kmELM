@@ -5,7 +5,9 @@ Companion to [I1850ERACNPRDCTCBC_f09_smoke1980_report.md](./I1850ERACNPRDCTCBC_f
 **Full process (Frontier as-run + Pathfinder port checklist):**
 [I1850ERACNPRDCTCBC_f09_era5_spinup_process.md](./I1850ERACNPRDCTCBC_f09_era5_spinup_process.md)
 
-Smoke (5-day 1980) succeeded. Production AD (400 yr) and final (800 yr) **completed** on Frontier.
+Smoke (5-day 1980) succeeded on Frontier and on Pathfinder (job `524272`). Production AD (400 yr) and final (800 yr) **completed** on Frontier. Pathfinder AD/final not started.
+
+On Pathfinder, pin the E3SM branch in `E3SM-era5/` so `E3SM/` can track TES_NORTH. See [`e3sm_source_trees.md`](./e3sm_source_trees.md).
 
 ## Forcing cycle
 

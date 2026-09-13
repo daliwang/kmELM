@@ -3,6 +3,7 @@
 set -e
 
 # Create the final (normal) spinup case for TES NORTHERA5 ERA5REF.
+# Uses ${KMELM_ROOT}/E3SM (TES branch). Not E3SM-era5. See README.md.
 # Companion to TES_NORTHERA5_ref.sh (accelerated / AD spinup).
 # finidat points at the year-0401 AD-spinup restart (may be produced later,
 # e.g. via AI model) from:

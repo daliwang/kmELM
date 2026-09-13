@@ -19,7 +19,14 @@ if [[ -z "${KMELM_ROOT:-}" ]]; then
   fi
 fi
 
-E3SM_SRCROOT="${E3SM_SRCROOT:-${KMELM_ROOT}/E3SM}"
+# Prefer the pinned ERA5 worktree so kmELM/E3SM can track TES_NORTH / other branches.
+if [[ -z "${E3SM_SRCROOT:-}" ]]; then
+  if [[ -d "${KMELM_ROOT}/E3SM-era5/cime/scripts" ]]; then
+    E3SM_SRCROOT="${KMELM_ROOT}/E3SM-era5"
+  else
+    E3SM_SRCROOT="${KMELM_ROOT}/E3SM"
+  fi
+fi
 CASE_ROOT="${CASE_ROOT:-${KMELM_ROOT}/e3sm_cases}"
 RUN_ROOT="${RUN_ROOT:-${KMELM_ROOT}/e3sm_runs}"
 
@@ -33,6 +40,16 @@ MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE:-128}"
 
 if [[ ! -d "${E3SM_SRCROOT}/cime/scripts" ]]; then
   echo "ERROR: E3SM not found at ${E3SM_SRCROOT}" >&2
-  echo "Check out lnd/clm_glacier_fixes_era5 (or equivalent with ERAf09) there." >&2
+  echo "Create the ERA5 tree: bash scripts/setup_e3sm_era5_worktree.sh" >&2
+  echo "Or check out lnd/clm_glacier_fixes_era5 (needs ERAf09) and set E3SM_SRCROOT." >&2
+  exit 1
+fi
+
+if ! grep -q 'DATM_MODE=ERAf09\|%ERAf09' \
+     "${E3SM_SRCROOT}/components/data_comps/datm/cime_config/config_component.xml" \
+     2>/dev/null; then
+  echo "ERROR: ${E3SM_SRCROOT} does not define DATM %ERAf09." >&2
+  echo "Use ${KMELM_ROOT}/E3SM-era5 (branch lnd/clm_glacier_fixes_era5)." >&2
+  echo "Do not point ERAf09 cases at kmELM/E3SM if that tree is on TESSFA_4km or master." >&2
   exit 1
 fi

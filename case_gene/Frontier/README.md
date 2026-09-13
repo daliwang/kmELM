@@ -22,6 +22,9 @@ Docs:
 
 Forcing: `kiloCraft/ERA5_6hr_f09` (DATM mode `ERAf09`). Requires E3SM branch with `%ERAf09` / `I1850ERACNPRDCTCBC` (e.g. `lnd/clm_glacier_fixes_era5`).
 
+On Pathfinder that branch is pinned in `E3SM-era5/` so `E3SM/` can track TES_NORTH.
+See [`docs/e3sm_source_trees.md`](../../docs/e3sm_source_trees.md).
+
 ```bash
 bash case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_adspinup.sh
 ```

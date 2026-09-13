@@ -1,7 +1,7 @@
 # I1850ERACNPRDCTCBC + ERA→f09 — 1980 pilot and smoke test
 
-**Date:** 2026-08-09  
-**Status:** Full-year 1980 forcing on disk; 5-day Frontier smoke test **PASSED** (job `5216389`).
+**Date:** 2026-08-09 (Frontier); Pathfinder smoke 2026-09-12  
+**Status:** Full-year 1980 forcing on disk; 5-day Frontier smoke **PASSED** (job `5216389`). Pathfinder 5-day smoke (`NCPL=24`) **PASSED** (job `524272`).
 
 ## Recommendation: where this report lives
 
@@ -15,6 +15,10 @@ Primary home: **`kmELM/docs/`** (this file).
 | **`kmELM/E3SM/`** | Source tree — avoid parking project notes inside upstream E3SM |
 
 A short pointer under `kiloCraft/scripts/` can be added later if useful; the authoritative status report stays here.
+
+Pathfinder port (same science, `NCPL=24`, source tree `E3SM-era5/`):
+[`I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`](./I1850ERACNPRDCTCBC_f09_era5_spinup_process.md)
+and [`e3sm_source_trees.md`](./e3sm_source_trees.md).
 
 ---
 

@@ -3,6 +3,7 @@
 set -e
 
 # Create a test case uELM_TES_SEBOX_I1850uELMCNPRDCTCBC
+# Uses ${KMELM_ROOT}/E3SM (TES / TESSFA_4km). Not E3SM-era5. See README.md.
 
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"
 E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"

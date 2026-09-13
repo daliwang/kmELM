@@ -3,6 +3,9 @@
 set -e
 
 # Create a test case uELM_TES_ERA5REF_I1850uELMCNPRDCTCBC
+# Source: ${KMELM_ROOT}/E3SM (TES / TESSFA branch). Do not use E3SM-era5
+# (that tree is pinned to lnd/clm_glacier_fixes_era5 for the f09 ERAf09 case).
+# See README.md and docs/e3sm_source_trees.md.
 
 #E3SM_DIN="/gpfs/wolf2/cades/cli185/proj-shared/pt-e3sm-inputdata"
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"

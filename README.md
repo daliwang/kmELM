@@ -22,10 +22,38 @@ export kmELM_home=$PWD
 git submodule update --init --recursive
 ```
 
+## Source trees (do not share one E3SM checkout)
+
+ERA5 f09 (`I1850ERACNPRDCTCBC` / `ERAf09`) and TES_NORTH (`uELM_TES` / 4 km) need
+**different E3SM branches**. On Pathfinder:
+
+| Tree | Branch | Use |
+|---|---|---|
+| `E3SM-era5/` | `lnd/clm_glacier_fixes_era5` | ERA5 f09 spinup |
+| `E3SM/` | `TESSFA_4km`, `master`, … | TES_NORTH and other experiments |
+
+```bash
+bash scripts/setup_e3sm_era5_worktree.sh
+```
+
+Layout, what not to mix, and Frontier `E3SM-master-pr`:
+[`docs/e3sm_source_trees.md`](docs/e3sm_source_trees.md).
+
 ## Build and Run
 
-Frontier I1850ERACNPRDCTCBC f09 ERA5 AD + final spinup (as-run, for Pathfinder port):
+### ERA5 f09 (`I1850ERACNPRDCTCBC`)
+
+Frontier AD + final spinup (completed) and Pathfinder port:
 [`docs/I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`](docs/I1850ERACNPRDCTCBC_f09_era5_spinup_process.md).
+
+Pathfinder create scripts: `case_gene/PathFinder/ERAf09/` (they use `E3SM-era5`).
+Forcing stage: `case_gene/PathFinder/ERAf09/DATA.md`.
+
+### TES_NORTH (4 km)
+
+Different experiment. Scripts: `case_gene/PathFinder/TES_NORTHERA5/`.
+Use the `E3SM/` tree, not `E3SM-era5`. Notes:
+[`case_gene/PathFinder/TES_NORTHERA5/README.md`](case_gene/PathFinder/TES_NORTHERA5/README.md).
 
 ## E3SM land developer testing (Frontier)
 

@@ -13,6 +13,11 @@ Default `KMELM_ROOT` is the git toplevel of this repo (on Pathfinder usually `/p
 
 This is not the TES 4 km experiment in `../TES_NORTHERA5/`.
 
+**Source tree:** `E3SM-era5/` (`lnd/clm_glacier_fixes_era5`). Do not point these
+scripts at `E3SM/` if that checkout is on `TESSFA_4km` or `master`.
+Create the worktree with `bash scripts/setup_e3sm_era5_worktree.sh`.
+Trees: [`docs/e3sm_source_trees.md`](../../../docs/e3sm_source_trees.md).
+
 | Script | Role |
 |---|---|
 | `I1850ERACNPRDCTCBC_f09_smoke.sh` | 5-day 1980 smoke (`NCPL=24`) |
@@ -35,7 +40,7 @@ Process note: `docs/I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`
 | PE | 1280 tasks, 128 MPI/node (smoke: 128) |
 | Walltime | 06:00:00 (smoke: 02:00:00) |
 
-Requires E3SM with `%ERAf09` (branch `lnd/clm_glacier_fixes_era5`) and Pathfinder machine files in that tree.
+Requires `E3SM-era5` with `%ERAf09` (branch `lnd/clm_glacier_fixes_era5`) and Pathfinder machine files in that tree. Override with `E3SM_SRCROOT` only if you have an equivalent checkout.
 
 **Forcing transfer** (run on Pathfinder, pulls from Frontier): [`DATA.md`](DATA.md) and `stage_eraf09_forcing.sh`. Copy at least 1980–1999 (`~58 GB`) into `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09` before AD/final. Smoke can start after 1980 only (`~3 GB`).
 

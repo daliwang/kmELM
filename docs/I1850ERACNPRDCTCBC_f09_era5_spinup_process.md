@@ -1,13 +1,16 @@
 # I1850ERACNPRDCTCBC f09 ERA5 spinup process (Frontier → Pathfinder)
 
-**Date:** 2026-09-12  
+**Date:** 2026-09-13  
 **Purpose:** Record how the Frontier AD and final spinup cases were created and run, so the same science configuration can be recreated on Pathfinder.  
-**Status:** Both Frontier production cases **completed**.
+**Status:** Frontier AD + final **completed**. Pathfinder 5-day smoke **passed** (job `524272`). AD/final not yet created on Pathfinder.
 
 Companion notes:
 
-- Smoke (5-day 1980): [`I1850ERACNPRDCTCBC_f09_smoke1980_report.md`](./I1850ERACNPRDCTCBC_f09_smoke1980_report.md)
-- Short spinup card (now points here): [`I1850ERACNPRDCTCBC_f09_spinup_report.md`](./I1850ERACNPRDCTCBC_f09_spinup_report.md)
+- Which E3SM tree to use (ERA5 vs TES_NORTH): [`e3sm_source_trees.md`](./e3sm_source_trees.md)
+- Smoke (5-day 1980, Frontier): [`I1850ERACNPRDCTCBC_f09_smoke1980_report.md`](./I1850ERACNPRDCTCBC_f09_smoke1980_report.md)
+- Short spinup card: [`I1850ERACNPRDCTCBC_f09_spinup_report.md`](./I1850ERACNPRDCTCBC_f09_spinup_report.md)
+- Pathfinder scripts: [`case_gene/PathFinder/ERAf09/README.md`](../case_gene/PathFinder/ERAf09/README.md)
+- Forcing transfer: [`case_gene/PathFinder/ERAf09/DATA.md`](../case_gene/PathFinder/ERAf09/DATA.md)
 - Forcing regrid: `/lustre/orion/cli115/world-shared/wangd/kiloCraft/scripts/README_ERA5_f09_regrid.md`
 
 ---
@@ -28,7 +31,16 @@ Companion notes:
 | Cases | `/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM/e3sm_cases` |
 | Runs | `/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM/e3sm_runs` |
 
-`.gitmodules` still lists `branch = master`. The **working tree** used for these cases is `lnd/clm_glacier_fixes_era5`, not the SHA currently recorded in the parent `main` index (`8064a91b`). Treat the working-tree branch/SHA above as the science source of truth for this campaign.
+`.gitmodules` still lists `branch = master`. The **science branch** for these cases is `lnd/clm_glacier_fixes_era5`, not the SHA recorded in the parent `main` index. Treat that branch as the source of truth for this campaign.
+
+On Pathfinder, pin that branch in a **sibling worktree** so `E3SM/` can track TES_NORTH (`TESSFA_4km`) or other experiments:
+
+```bash
+bash scripts/setup_e3sm_era5_worktree.sh
+# tree: /projects/hpcl-cli185/proj-shared/wangd/kmELM/E3SM-era5
+```
+
+Do not check this branch out in `kmELM/E3SM` while TES_NORTH needs a different branch. Details: [`e3sm_source_trees.md`](./e3sm_source_trees.md).
 
 A third case, `I1850ERACNPRDCTCBC_f09_smoke1980`, is the 1980 5-day smoke (passed job `5216389`). It is not part of the 400+800 yr production chain.
 
@@ -221,7 +233,7 @@ Live case XMLs match the table in §4. `replay.sh` in each case directory is the
 
 ## 6. Pathfinder port checklist
 
-Existing `case_gene/PathFinder/` scripts (`TES_NORTHERA5`) are a **different** experiment: 4 km TES / `ELM_USRDAT` / `DATM_MODE=uELM_TES`. Do not reuse those namelists. Copy the **Frontier f09** scripts and change only machine, compiler, paths, and PE/walltime.
+Existing `case_gene/PathFinder/TES_NORTHERA5/` scripts are a **different** experiment: 4 km TES / `ELM_USRDAT` / `DATM_MODE=uELM_TES`. Do not reuse those namelists, and do not share the ERA5 E3SM tree with them. TES uses `E3SM/`; this port uses `E3SM-era5/`.
 
 Pathfinder conventions already used in this repo (`TES_NORTHERA5_ref.sh`):
 
@@ -248,20 +260,33 @@ Pathfinder conventions already used in this repo (`TES_NORTHERA5_ref.sh`):
 
 ### Change (machine)
 
-1. Check out the same E3SM branch under the Pathfinder kmELM clone; init submodules.
-2. Install Pathfinder CIME machine/compiler files if missing.
+1. Pin `lnd/clm_glacier_fixes_era5` in `E3SM-era5/` (`bash scripts/setup_e3sm_era5_worktree.sh`). Leave `E3SM/` free for TES_NORTH.
+2. Pathfinder CIME machine/compiler files are already on this branch (`c2d41815c1`). Pathfinder has no MOAB; create scripts set `COMP_INTERFACE=mct`.
 3. Stage stock E3SM inputdata (`DIN_LOC_ROOT`) including the f09 domain and 1850 surfdata (or `WITH_STOCK=1` in the stage script).
 4. On Pathfinder, pull `kiloCraft/ERA5_6hr_f09` (at least 1980–1999, 2160 files + a **real** domain file) to `/projects/hpcl-cli185/proj-shared/wangd/kiloCraft/ERA5_6hr_f09`: `MODE=spinup bash case_gene/PathFinder/ERAf09/stage_eraf09_forcing.sh`. Details: `case_gene/PathFinder/ERAf09/DATA.md`.
-5. Create scripts are in `case_gene/PathFinder/ERAf09/` (not under `E3SM/`). Cases and runs go to `${KMELM_ROOT}/e3sm_cases` and `${KMELM_ROOT}/e3sm_runs`.
+5. Create scripts are in `case_gene/PathFinder/ERAf09/` (not under `E3SM/`). Cases and runs go to `${KMELM_ROOT}/e3sm_cases` and `${KMELM_ROOT}/e3sm_runs`. Scripts default `E3SM_SRCROOT` to `E3SM-era5`.
 6. Keep 10-year segments until a Pathfinder smoke measures minutes per year; longer walltime can use fewer resubmits but do not change `NCPL` or total years.
 7. Smoke first (`STOP_N=5` days, `RUN_STARTDATE=1980-01-01`, `NCPL=24` to match production).
 8. AD → wait for `elm.r.0401-01-01-00000.nc` → final.
 
 ```bash
+bash scripts/setup_e3sm_era5_worktree.sh
 bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_smoke.sh
+# then: cd e3sm_cases/I1850ERACNPRDCTCBC_f09_smoke1980 && ./case.build && ./case.submit
 bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_adspinup.sh
 bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_finalspinup.sh
 ```
+
+### Pathfinder status (2026-09-13)
+
+| Step | Status |
+|---|---|
+| `E3SM-era5` worktree on `lnd/clm_glacier_fixes_era5` | Created (`scripts/setup_e3sm_era5_worktree.sh`) |
+| Forcing 1980 (smoke) | Staged for the 2026-09-12 smoke |
+| Forcing 1980–1999 (spinup) | Confirm 2160 files before AD (`DATA.md`) |
+| Smoke 5-day 1980, `NCPL=24` | **Passed** job `524272` (built against `.../kmELM/E3SM` before the worktree split). Recreate against `E3SM-era5` if you rebuild. |
+| AD 400 yr | Not created yet |
+| Final 800 yr | Not created yet |
 
 ---
 
@@ -273,7 +298,8 @@ bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_finalspinup.sh
 4. `ROF_NCPL` must equal `LND_NCPL`.
 5. Recreating a case **deletes** `CASEROOT`. Load a CIME-capable Python first.
 6. Final `finidat` is a Frontier Lustre path today. On Pathfinder, either copy the AD restart or recreate AD there and point `finidat` at the new path.
-7. Use this branch on both Frontier and Pathfinder. Science is `2a1960cd8a`; the Pathfinder machine overlay is `c2d41815c1`. Parent `kmELM` `main` records that tip.
+7. Use this branch on both Frontier and Pathfinder. Science is `2a1960cd8a`; the Pathfinder machine overlay is `c2d41815c1`. On Pathfinder keep it in `E3SM-era5/`, not in the `E3SM/` submodule if TES_NORTH needs another branch.
+8. Recreating a Pathfinder smoke/AD case **deletes** `CASEROOT`. The first Pathfinder smoke (`524272`) predates `E3SM-era5`; new creates pick up `E3SM-era5` automatically.
 
 ---
 
@@ -288,5 +314,9 @@ bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_finalspinup.sh
 | AD create script (Frontier) | `case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_adspinup.sh` |
 | Final create script (Frontier) | `case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_finalspinup.sh` |
 | Pathfinder create scripts | `case_gene/PathFinder/ERAf09/` (cases/runs under `${KMELM_ROOT}/e3sm_{cases,runs}`, not `E3SM/`) |
+| Pathfinder E3SM tree | `${KMELM_ROOT}/E3SM-era5` (`lnd/clm_glacier_fixes_era5`) |
+| Pathfinder smoke case | `${KMELM_ROOT}/e3sm_cases/I1850ERACNPRDCTCBC_f09_smoke1980` (job `524272` passed) |
 | CIME replay (actual xmlchanges) | `$CASEROOT/replay.sh` |
-| Forcing | `/lustre/orion/cli115/world-shared/wangd/kiloCraft/ERA5_6hr_f09` |
+| Forcing (Frontier) | `/lustre/orion/cli115/world-shared/wangd/kiloCraft/ERA5_6hr_f09` |
+| Forcing (Pathfinder) | `/projects/hpcl-cli185/proj-shared/wangd/kiloCraft/ERA5_6hr_f09` |
+| Source-tree map | [`e3sm_source_trees.md`](./e3sm_source_trees.md) |
