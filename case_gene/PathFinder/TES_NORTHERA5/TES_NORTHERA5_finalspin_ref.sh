@@ -1,118 +1,127 @@
 #!/bin/bash
-
 set -e
 
-# Create the final (normal) spinup case for TES NORTHERA5 ERA5REF.
-# Uses ${KMELM_ROOT}/E3SM (TES branch). Not E3SM-era5. See README.md.
-# Companion to TES_NORTHERA5_ref.sh (accelerated / AD spinup).
-# finidat points at the year-0401 AD-spinup restart (may be produced later,
-# e.g. via AI model) from:
-#   uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC
-# Case creation does not require that restart file to exist yet.
+# Recreate the successful Pathfinder continuous / final-spin case:
+#   uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin
+# As-run finidat is the AI 0021 restart (not an AD 0401 file).
+# Source: ${KMELM_ROOT}/E3SM (not E3SM-era5). See README.md.
+#
+# Deletes CASEROOT unless you set FORCE_RECREATE=1.
 
-CLI185PROJ_ROOT="/projects/hpcl-cli185/"
-
-E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"
+CLI185PROJ_ROOT="/projects/hpcl-cli185"
+E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm"
 DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
 KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
-E3SM_SRCROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/E3SM"
+E3SM_SRCROOT="${KMELM_ROOT}/E3SM"
 
 echo "E3SM_SRCROOT: $E3SM_SRCROOT"
 echo "E3SM_DIN: $E3SM_DIN"
 
 EXPID="NORTHERA5"
 ADSPIN_CASE="uELM_${EXPID}_ERA5REF_I1850uELMCNPRDCTCBC"
-CASEDIR="$KMELM_ROOT/e3sm_cases/${ADSPIN_CASE}_finalspin"
+CASEDIR="${KMELM_ROOT}/e3sm_cases/${ADSPIN_CASE}_finalspin"
 CASE_DATA="${DATA_ROOT}/entire_domain"
 DOMAIN_FILE="${EXPID}_domain.lnd.TES_NORTHERA5.4km.1d.c251009.nc"
-# Match the surfdata used by the AD-spinup reference case
 SURFDATA_FILE="surfdata.TESSFA_DOMAIN1.4km.1d.NALCMS.c260218_yw.nc"
 
-# AD-spinup restart date / file (finidat target; may be created later via AI model)
-ADSPIN_RESTART_DATE="0401-01-01"
-ADSPIN_RESTART="${KMELM_ROOT}/e3sm_runs/${ADSPIN_CASE}/run/${ADSPIN_CASE}.elm.r.${ADSPIN_RESTART_DATE}-00000.nc"
+# As-run: AI-updated restart (year 0021). The AD 0401 path was never used.
+AD_RESTART_0401="${KMELM_ROOT}/e3sm_runs/${ADSPIN_CASE}/run/${ADSPIN_CASE}.elm.r.0401-01-01-00000.nc"
+AI_RESTART="${CLI185PROJ_ROOT}/proj-shared/wangd/AI4ELM/AI_data/TES_NORTH_dataset/ERA5_TESNORTH_inference/AI_restartfile/updated_restart_normal_spinup_${ADSPIN_CASE}.elm.r.0021-01-01-00000.nc"
+FINIDAT="${AI_RESTART}"
+RUN_STARTDATE="0401-01-01"
 
-if [ ! -f "${ADSPIN_RESTART}" ]; then
-  echo "WARNING: AD-spinup restart not found yet:"
-  echo "  ${ADSPIN_RESTART}"
-  echo "Case will still be created; place the year-${ADSPIN_RESTART_DATE} restart before submit."
+if [[ -d "${CASEDIR}" && "${FORCE_RECREATE:-0}" != "1" ]]; then
+  echo "ERROR: ${CASEDIR} already exists (successful finalspin case)." >&2
+  echo "Set FORCE_RECREATE=1 if you intend to delete and recreate it." >&2
+  exit 1
 fi
+
+if [[ ! -f "${FINIDAT}" ]]; then
+  echo "WARNING: AI restart not found yet:"
+  echo "  ${FINIDAT}"
+  echo "Case will still be created; place that file before submit."
+fi
+
+echo "CASEDIR: ${CASEDIR}"
+echo "FINIDAT: ${FINIDAT}"
+echo "SURFDATA: ${SURFDATA_FILE}"
 
 \rm -rf "${CASEDIR}"
 
-${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach pathfinder --compiler gnu --mpilib openmpi --compset I1850CNPRDCTCBC --res ELM_USRDAT  --handle-preexisting-dirs r --srcroot "${E3SM_SRCROOT}"
+"${E3SM_SRCROOT}/cime/scripts/create_newcase" \
+  --case "${CASEDIR}" \
+  --mach pathfinder \
+  --compiler gnu \
+  --mpilib openmpi \
+  --compset I1850CNPRDCTCBC \
+  --res ELM_USRDAT \
+  --handle-preexisting-dirs r \
+  --srcroot "${E3SM_SRCROOT}"
 
 cd "${CASEDIR}"
 
-# Pathfinder has no MOAB; the share build fails if the case stays on driver-moab.
 ./xmlchange COMP_INTERFACE=mct
-
-./xmlchange PIO_TYPENAME="pnetcdf"
-
-./xmlchange PIO_NETCDF_FORMAT="64bit_data"
-
+./xmlchange PIO_TYPENAME=pnetcdf
+./xmlchange PIO_NETCDF_FORMAT=64bit_data
 ./xmlchange DIN_LOC_ROOT="${E3SM_DIN}"
-
 ./xmlchange DIN_LOC_ROOT_CLMFORC="${CASE_DATA}"
-
 ./xmlchange CIME_OUTPUT_ROOT="${KMELM_ROOT}/e3sm_runs/"
+./xmlchange DATM_MODE=uELM_TES
 
-./xmlchange DATM_MODE="uELM_TES"
-
-./xmlchange NTASKS="1"
-./xmlchange NTASKS_LND="1280"
-./xmlchange NTASKS_ATM="100"
-./xmlchange NTASKS_CPL="100"
-
-./xmlchange NTASKS_PER_INST="1"
-
-./xmlchange MAX_MPITASKS_PER_NODE="128"
+# As-run PE: 1920 ATM/CPL/LND, 128 MPI/node.
+./xmlchange NTASKS=1
+./xmlchange NTASKS_ATM=1920
+./xmlchange NTASKS_CPL=1920
+./xmlchange NTASKS_LND=1920
+./xmlchange NTASKS_PER_INST=1
+./xmlchange MAX_MPITASKS_PER_NODE=128
 
 ./xmlchange ATM_DOMAIN_PATH="${CASE_DATA}/domain_surfdata/"
-
 ./xmlchange ATM_DOMAIN_FILE="${DOMAIN_FILE}"
-
 ./xmlchange LND_DOMAIN_PATH="${CASE_DATA}/domain_surfdata/"
-
 ./xmlchange LND_DOMAIN_FILE="${DOMAIN_FILE}"
 
-./xmlchange JOB_WALLCLOCK_TIME="24:00:00"
+./xmlchange JOB_WALLCLOCK_TIME=12:00:00
+./xmlchange USER_REQUESTED_WALLTIME=12:00:00
 
-./xmlchange ATM_NCPL="24"
+./xmlchange ATM_NCPL=24
+./xmlchange DATM_CLMNCEP_YR_START=1980
+./xmlchange DATM_CLMNCEP_YR_END=1999
+./xmlchange DATM_CLMNCEP_YR_ALIGN=1990
 
-./xmlchange DATM_CLMNCEP_YR_START="1980"
-./xmlchange DATM_CLMNCEP_YR_END="1999"
-./xmlchange DATM_CLMNCEP_YR_ALIGN="1990"
+# As-run: 10-year segments, restart every 2 years (not 200/20).
+./xmlchange STOP_OPTION=nyears
+./xmlchange STOP_N=10
+./xmlchange REST_OPTION=nyears
+./xmlchange REST_N=2
 
-# Final / normal spinup: no accelerated BGC spinup
-./xmlchange STOP_N="200"
-./xmlchange REST_N="20"
-./xmlchange STOP_OPTION="nyears"
-
-./xmlchange CONTINUE_RUN="FALSE"
-./xmlchange ELM_ACCELERATED_SPINUP="off"
+./xmlchange CONTINUE_RUN=FALSE
+./xmlchange ELM_ACCELERATED_SPINUP=off
+./xmlchange ELM_FORCE_COLDSTART=off
 ./xmlchange ELM_BLDNML_OPTS="-bgc bgc -nutrient cnp -nutrient_comp_pathway rd  -soil_decomp ctc -methane"
-./xmlchange RUN_TYPE="startup"
-./xmlchange RUN_STARTDATE="${ADSPIN_RESTART_DATE}"
+./xmlchange RUN_TYPE=startup
+./xmlchange RUN_STARTDATE="${RUN_STARTDATE}"
 
-echo "finidat = '${ADSPIN_RESTART}'
+cat >> user_nl_elm <<EOF
+!finidat = '${AD_RESTART_0401}'
+finidat = '${FINIDAT}'
 fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
       hist_dov2xy = .true.,.true.
       hist_nhtfrq=-175200
       hist_mfilt=1
       spinup_state = 0
       suplphos = 'NONE'
-     " >> user_nl_elm
+EOF
 
 ./case.setup --reset
-
 ./case.setup
-
 ./case.build --clean-all
-
 ./case.build
 
-# Queue from the pathfinder Slurm definition (partition parallel, QOS normal).
-./xmlchange JOB_QUEUE="parallel"
+# As-run queue for the 1920-task continuous run.
+./xmlchange --force JOB_QUEUE=hpcl-cli185
+./xmlchange USER_REQUESTED_QUEUE=hpcl-cli185
 
+echo "Case created: ${CASEDIR}"
+echo "Submit is left to you: cd ${CASEDIR} && ./case.submit"
 #./case.submit

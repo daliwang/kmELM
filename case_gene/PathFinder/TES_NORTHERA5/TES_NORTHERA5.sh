@@ -6,7 +6,8 @@ set -e
 # Uses ${KMELM_ROOT}/E3SM (TES / TESSFA_4km). Not E3SM-era5. See README.md.
 
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"
-E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"
+# Same DIN as the successful ERA5REF cases (e3sm parent, not inputdata).
+E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm"
 DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
 KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
 E3SM_SRCROOT="${KMELM_ROOT}/E3SM"
@@ -17,7 +18,7 @@ EXPID="NORTHERA5"
 CASEDIR="${KMELM_ROOT}/e3sm_cases/uELM_${EXPID}_I1850uELMCNPRDCTCBC"
 CASE_DATA="${DATA_ROOT}/entire_domain"
 DOMAIN_FILE="${EXPID}_domain.lnd.TES_NORTHERA5.4km.1d.c251009.nc"
-SURFDATA_FILE="${EXPID}_surfdata.TES_NORTHERA5.4km.1d.c251009.nc"
+SURFDATA_FILE="surfdata.TESSFA_DOMAIN1.4km.1d.NALCMS.c260218_yw.nc"
 
 
 \rm -rf "${CASEDIR}"
@@ -80,10 +81,11 @@ cd "${CASEDIR}"
 
 echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
       hist_dov2xy = .true.,.true.
-      hist_fincl2 = 'FSDS', 'GPP', 'FLDS', 'TBOT', 'RH2M'
-      hist_mfilt = 1,8760
-      hist_nhtfrq = 0,-1
-      
+!      hist_fincl2 = 'FSDS', 'GPP', 'FLDS', 'TBOT', 'RH2M'
+!      hist_mfilt = 1,8760
+!      hist_nhtfrq = 0,-1
+      hist_nhtfrq=-175200
+      hist_mfilt=1
       spinup_state = 1
       suplphos = 'ALL'
       nyears_ad_carbon_only = 25
