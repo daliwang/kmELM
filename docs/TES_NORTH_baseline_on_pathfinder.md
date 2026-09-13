@@ -1,9 +1,9 @@
 # TES_NORTH baseline on Pathfinder (4 km Daymet–ERA5)
 
 **Date:** 2026-09-13  
-**Purpose:** Record the TES_NORTH domain, forcing, surface dataset, and ELM
-parameters used by the successful Pathfinder cases so the same simulation can
-be repeated on another machine.  
+**Purpose:** Record the TES_NORTH domain, forcing, surface dataset, ELM
+parameters, and the AI-restart → finalspin continue-run procedure so the same
+simulation can be repeated and so an agent knows what to do next (transient).  
 **Experiment name:** `TES_NORTHERA5` / `uELM_NORTHERA5`  
 **This is not** the global f09 ERA5 spinup (`I1850ERACNPRDCTCBC` / `ERAf09`).
 
@@ -11,19 +11,23 @@ Companion notes:
 
 - Source-tree split (TES vs ERA5 f09): [`e3sm_source_trees.md`](./e3sm_source_trees.md)
 - Pathfinder create scripts: [`case_gene/PathFinder/TES_NORTHERA5/README.md`](../case_gene/PathFinder/TES_NORTHERA5/README.md)
+- Continue-run / transient handoff: §7 and §8 below
 
 ---
 
 ## 1. What to reproduce
 
-Two Pathfinder cases are the baseline:
+The Pathfinder chain is **AD → AI-updated 0021 restart → finalspin continue runs → transient**.
+Two cases exist today; the transient case is **not created yet**.
 
 | Stage | Case name | Role |
 |---|---|---|
-| AD spinup | `uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC` | 20-year accelerated-decomposition cold start |
-| Continuous / finalspin | `uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin` | Normal BGC from the AI-updated year-0021 restart |
+| AD spinup | `uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC` | 20-year accelerated-decomposition cold start (`0001`–`0021`) |
+| AI inference | (data product, not a CIME case) | Overwrites CNP pools in the AD `0021` restart |
+| Finalspin continue | `uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin` | Normal BGC from that AI restart; **continue runs** write 2-year restarts for transient |
+| Transient (next) | *not created* | Historical / transit run; `finidat` = a finalspin `elm.r.YYYY-01-01` |
 
-Create scripts that match those as-run settings:
+Create scripts that match the AD and first finalspin settings:
 
 - `case_gene/PathFinder/TES_NORTHERA5/TES_NORTHERA5_ref.sh`
 - `case_gene/PathFinder/TES_NORTHERA5/TES_NORTHERA5_finalspin_ref.sh`
@@ -356,21 +360,164 @@ out in the AD namelist.
 Scale the PE layout to the target machine. 259,535 land cells / 840 LND tasks
 is about 309 cells per task on the AD layout.
 
-### Finalspin initial condition
+### Finalspin initial condition (first segment only)
 
-As-run `finidat` is the **AI-updated** year-0021 restart, not the AD 0401 file:
+The first finalspin submit is a **startup** from the **AI-updated** AD year-0021
+restart, with the model clock set to `0401-01-01` (same convention as a
+conventional final spin that would have used an AD `0401` file):
 
 ```
 /projects/hpcl-cli185/proj-shared/wangd/AI4ELM/AI_data/TES_NORTH_dataset/ERA5_TESNORTH_inference/AI_restartfile/updated_restart_normal_spinup_uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC.elm.r.0021-01-01-00000.nc
 ```
 
-`RUN_STARTDATE` is still `0401-01-01`. To repeat a conventional (non-AI)
-continuous run, point `finidat` at the AD restart
-`${CASE}.elm.r.0401-01-01-00000.nc` instead.
+That file is a drop-in ELM restart (49 GB, `gridcell=259535`). AI inference
+replaced the CNP vegetation/soil pools on the AD `0021` template; other
+restart fields were copied. `user_nl_elm` still lists this `finidat`, but
+**after the first successful segment CIME ignore it**: later submits use
+`CONTINUE_RUN=TRUE` and the `rpointer.*` files in the run directory.
+
+Do **not** point `finidat` at the raw AD
+`…/uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC/run/…elm.r.0021-01-01-00000.nc`
+for this baseline. That is the pre-AI file. There is no AD `0401` restart on
+Pathfinder (AD stopped at `0021`).
 
 ---
 
-## 8. Directory layout to copy
+## 8. AI restart → continue runs → transient (agent playbook)
+
+This is the procedure an agent should follow. The finalspin case is **already
+built**. Do not run `TES_NORTHERA5_finalspin_ref.sh` again unless the user
+sets `FORCE_RECREATE=1` and intends to wipe it.
+
+```
+AD 20 yr (0001–0021, cold start, spinup_state=1)
+        │
+        ▼
+AI updates elm.r.0021  →  updated_restart_normal_spinup_…elm.r.0021-01-01-00000.nc
+        │
+        ▼
+finalspin first submit   CONTINUE_RUN=FALSE   finidat=AI file   RUN_STARTDATE=0401-01-01
+        │
+        ▼
+finalspin continue       CONTINUE_RUN=TRUE    rpointer.lnd / rpointer.drv
+        │                 STOP_N=10 nyears, REST_N=2 nyears
+        │                 writes …elm.r.04xx-01-01-00000.nc (~49 GB each)
+        ▼
+transient (next case)    finidat = a Jan-1 finalspin elm.r  (plus matching cpl.r if hybrid/branch)
+                         DATM can use 1980–2023; spinup cycled 1980–1999 only
+```
+
+### 8.1 First finalspin segment (already done)
+
+Case:
+`${KMELM_ROOT}/e3sm_cases/uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin`
+
+Run:
+`${KMELM_ROOT}/e3sm_runs/uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin/run`
+
+Settings that must stay true for every finalspin segment:
+
+- `ELM_ACCELERATED_SPINUP=off`, `spinup_state=0`, `suplphos='NONE'`
+- Same domain, surfdata, `DATM_MODE=uELM_TES`, DATM cycle 1980–1999
+- PE as-run: 1920 ATM/CPL/LND, 128 MPI/node, queue `hpcl-cli185`
+
+The first submit used `CONTINUE_RUN=FALSE` so ELM read the AI `finidat` and
+started the clock at `0401-01-01`. A 10-day smoke (`STOP_OPTION=ndays`,
+`STOP_N=10`) wrote the tiny `elm.r.0401-01-11` file; **do not** use that for
+transient.
+
+### 8.2 Continue runs (current mode)
+
+After the first multi-year segment succeeds, **every later job is a continue
+run**. As-run command (2026-08-11 and 2026-08-20):
+
+```bash
+cd ${KMELM_ROOT}/e3sm_cases/uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC_finalspin
+./xmlchange CONTINUE_RUN=TRUE
+./xmlchange STOP_OPTION=nyears,STOP_N=10
+./xmlchange REST_OPTION=nyears,REST_N=2
+./xmlchange JOB_WALLCLOCK_TIME=12:00:00
+# optional: RESUBMIT=N for N automatic follow-on 10-year segments
+./xmlchange RESUBMIT=0
+./case.submit
+```
+
+Rules for an agent:
+
+1. **Do not** set `CONTINUE_RUN=FALSE` again unless the user wants a brand-new
+   startup from `finidat`. That would ignore `rpointer` and restart from the
+   AI `0021` file at year 0401.
+2. **Do not** edit `user_nl_elm` `finidat` for a continue run. CIME reads
+   `run/rpointer.lnd` and `run/rpointer.drv`.
+3. **Do not** delete the run directory or the `rpointer.*` files.
+4. Confirm `rpointer.lnd` names an existing `elm.r.YYYY-01-01-00000.nc` and
+   `rpointer.drv` names the matching `cpl.r.YYYY-01-01-00000.nc`.
+5. Each successful 10-year segment writes five 2-year ELM restarts
+   (`+2, +4, +6, +8, +10`) at ~49 GB each, plus coupler restarts and an
+   annual `elm.h0` (because `hist_nhtfrq=-175200`).
+6. If `CaseStatus` shows `model execution starting` with no later `success`
+   or `error`, the segment is unfinished. Inspect the queue and the latest
+   `elm.r` year before submitting again.
+
+### 8.3 Restarts on disk (2026-09-13)
+
+| Item | Value |
+|---|---|
+| AI IC | `…/AI_restartfile/updated_restart_normal_spinup_…elm.r.0021-01-01-00000.nc` |
+| AD raw 0021 (not used as finalspin IC) | `e3sm_runs/…_ERA5REF_…/run/…elm.r.0021-01-01-00000.nc` |
+| Finalspin Jan-1 ELM restarts | `0403, 0405, …, 0469` every 2 years |
+| Last **successful** 10-year job | `477999` (2026-08-28) ended at **0461** |
+| `rpointer` now | **0469-01-01** (`elm.r` + `cpl.r`) |
+| Last job in CaseStatus | `491899` started 2026-09-05; no success/fail line yet |
+| h0 snapshots | `0401`, `0421`, `0441`, `0461` |
+
+Job `491899` wrote `0463`–`0469` (eight years of a 10-year segment) and left
+`rpointer` at 0469. Treat **0469** as the latest usable continue point, and
+**0461** as the last fully closed 10-year segment. Confirm whether `491899`
+is still running or died before submitting the next continue.
+
+### 8.4 What the continue run is for
+
+Finalspin is **not** the end product. It relaxes the AI IC under normal BGC
+(`spinup_state=0`) and writes Jan-1 restarts that a **transient** (historical
+/ “transit”) case will read as `finidat`.
+
+Use a **1 January** restart (`…elm.r.YYYY-01-01-00000.nc`), not mid-year or
+the 10-day `0401-01-11` smoke file. Prefer a year that also has
+`cpl.r.YYYY-01-01-00000.nc` if the transient case is hybrid/branch. For a
+new `RUN_TYPE=startup` transient, ELM `finidat` alone is enough.
+
+There is **no** TES_NORTH transient create script in `kmELM` yet. When the
+user asks to start transit/transient:
+
+1. Do **not** keep extending this finalspin case with historical DATM years.
+   Create a **new** case (new name, e.g. `…_transient` or `…_20TR`).
+2. Keep the same domain, surfdata, `DATM_MODE=uELM_TES`, PE family, and ELM
+   flags (`spinup_state=0`, `suplphos='NONE'`, AD spinup off).
+3. Set `finidat` to the chosen finalspin `elm.r.YYYY-01-01-00000.nc`.
+4. Set `CONTINUE_RUN=FALSE` and a new `RUN_STARTDATE` for the transient
+   calendar (do not reuse `0401-01-01` unless the user says to).
+5. Point DATM at the years needed for transient. The forcing archive already
+   has **1980–2023**; spinup only cycled 1980–1999.
+6. Leave the finalspin case and its `rpointer` untouched so continue runs can
+   resume if more spinup years are requested.
+
+### 8.5 Agent checklist (next actions)
+
+1. If the user wants **more finalspin years**: check job `491899` / queue;
+   if the run dir is idle, `CONTINUE_RUN=TRUE` from `rpointer` 0469 and
+   submit another `STOP_N=10` / `REST_N=2` segment. Do not recreate the case.
+2. If the user wants **transient**: ask (or use their stated) restart year;
+   default to the latest complete Jan-1 pair (`0469` if `elm.r` and `cpl.r`
+   are both present and the segment looks healthy, else `0461`). Then create
+   a new case as in §8.4. Document that new case in this file when it exists.
+3. If the user wants to **recreate** finalspin from scratch: only then run
+   `TES_NORTHERA5_finalspin_ref.sh` with `FORCE_RECREATE=1`, and only after
+   confirming the AI restart file is still at the path in §7.
+
+---
+
+## 9. Directory layout to copy
 
 Minimum tree for DATM + ELM (relative to a data root you choose):
 
@@ -412,13 +559,13 @@ is ~878 GB plus ~100 MB of domain/surfdata.
 
 ---
 
-## 9. Recreate on another computer
+## 10. Recreate on another computer
 
 1. Clone `kmELM` and initialize the `E3SM` submodule. Checkout a branch that
    has `uELM_TES` (fork `master` or `TESSFA_4km`). Overlay Pathfinder (or your
    machine) files if that branch lacks them. See
    [`e3sm_source_trees.md`](./e3sm_source_trees.md).
-2. Copy the TES_NORTH data tree in §8. Rebuild `atm_forcing.datm7.km.1d`
+2. Copy the TES_NORTH data tree in §9. Rebuild `atm_forcing.datm7.km.1d`
    softlinks. Confirm domain and surfdata SHA256.
 3. Install stock E3SM inputdata so the relative paths in §6 exist under
    `DIN_LOC_ROOT`. Confirm `clm_params_c211124.nc` and
@@ -429,15 +576,19 @@ is ~878 GB plus ~100 MB of domain/surfdata.
 5. Adjust `NTASKS_*`, `MAX_MPITASKS_PER_NODE`, queue, and wallclock.
 6. AD: cold start, `ELM_ACCELERATED_SPINUP=on`, `spinup_state=1`,
    `suplphos='ALL'`, 20 years.
-7. Finalspin: `finidat` = AD (or AI) restart, `ELM_ACCELERATED_SPINUP=off`,
-   `spinup_state=0`, `suplphos='NONE'`.
+7. Finalspin first segment: `finidat` = **AI** `0021` restart,
+   `RUN_STARTDATE=0401-01-01`, `CONTINUE_RUN=FALSE`,
+   `ELM_ACCELERATED_SPINUP=off`, `spinup_state=0`, `suplphos='NONE'`.
+8. Later finalspin years: `CONTINUE_RUN=TRUE` from `rpointer` (§8). Do not
+   reset `finidat`.
+9. Transient is a **new** case that reads a finalspin Jan-1 `elm.r` (§8.4).
 
 Do not reuse ERAf09 namelists, f09 domain/surfdata, or the `E3SM-era5` tree
 for this experiment.
 
 ---
 
-## 10. Related products (not this baseline)
+## 11. Related products (not this baseline)
 
 | Product | Difference |
 |---|---|
