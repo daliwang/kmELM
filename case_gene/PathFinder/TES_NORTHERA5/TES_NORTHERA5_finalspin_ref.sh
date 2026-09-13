@@ -11,7 +11,7 @@ set -e
 
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"
 
-E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm"
+E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"
 DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
 KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
 E3SM_SRCROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/E3SM"
@@ -42,6 +42,9 @@ fi
 ${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach pathfinder --compiler gnu --mpilib openmpi --compset I1850CNPRDCTCBC --res ELM_USRDAT  --handle-preexisting-dirs r --srcroot "${E3SM_SRCROOT}"
 
 cd "${CASEDIR}"
+
+# Pathfinder has no MOAB; the share build fails if the case stays on driver-moab.
+./xmlchange COMP_INTERFACE=mct
 
 ./xmlchange PIO_TYPENAME="pnetcdf"
 
@@ -108,6 +111,7 @@ fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 ./case.build
 
-./xmlchange --force JOB_QUEUE="hpcl-cli185"
+# Queue from the pathfinder Slurm definition (partition parallel, QOS normal).
+./xmlchange JOB_QUEUE="parallel"
 
 #./case.submit

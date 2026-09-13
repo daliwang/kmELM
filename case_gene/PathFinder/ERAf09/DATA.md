@@ -4,7 +4,7 @@ DATM reads `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09`. The Pathfinder create scripts s
 
 ```text
 DIN_LOC_ROOT_CLMFORC=/projects/hpcl-cli185/proj-shared/wangd/kiloCraft
-DIN_LOC_ROOT         =/projects/hpcl-cli185/world-shared/e3sm
+DIN_LOC_ROOT         =/projects/hpcl-cli185/world-shared/e3sm/inputdata
 ```
 
 Do **not** copy the native 0.25° ERA5 tree. The cases use the remapped f09 product only.
@@ -54,7 +54,7 @@ MODE=spinup WITH_STOCK=1 bash case_gene/PathFinder/ERAf09/stage_eraf09_forcing.s
 DRY_RUN=1 MODE=smoke bash case_gene/PathFinder/ERAf09/stage_eraf09_forcing.sh
 ```
 
-Override `SRC_HOST`, `SRC_USER`, `DEST_FORC`, or `DEST_DIN` if needed. Globus from the Frontier Lustre collection to Pathfinder `/projects` is an alternative for the large spinup copy; still land a regular domain file at the dest path.
+The script logs into Frontier as `wangd` (not the Pathfinder `$USER`). Override `SRC_HOST`, `SRC_USER`, `DEST_FORC`, or `DEST_DIN` if needed. Globus from the Frontier Lustre collection to Pathfinder `/projects` is an alternative for the large spinup copy; still land a regular domain file at the dest path.
 
 ## Stock files (if `./check_input_data` fails)
 
@@ -78,7 +78,7 @@ These live under Frontier `DIN_LOC_ROOT` (`.../e3sm/inputdata`). CIME can downlo
 | `lnd/clm2/mappingdata/maps/0.9x1.25/map_0.9x1.25_nomask_to_0.5x0.5_nomask_aave_da_c120522.nc` | 39 MB |
 | `lnd/clm2/mappingdata/maps/0.9x1.25/map_0.5x0.5_nomask_to_0.9x1.25_nomask_aave_da_c121019.nc` | 39 MB |
 
-If Pathfinder `DIN_LOC_ROOT` already uses an `inputdata/` subdirectory, set `DEST_DIN=/projects/hpcl-cli185/world-shared/e3sm/inputdata` (or change `E3SM_DIN` in the create scripts).
+`DIN_LOC_ROOT` on this Pathfinder is `/projects/hpcl-cli185/world-shared/e3sm/inputdata`. Those stock files are already there, so `WITH_STOCK=1` is not needed. If you do pull them, set `DEST_DIN` to that `inputdata` directory, not the parent `e3sm` tree.
 
 ## Checks on Pathfinder
 

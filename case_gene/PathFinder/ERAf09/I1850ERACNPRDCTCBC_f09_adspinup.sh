@@ -60,6 +60,7 @@ mkdir -p "${CASE_ROOT}" "${RUN_ROOT}"
 
 cd "${CASEDIR}"
 
+./xmlchange COMP_INTERFACE=mct
 ./xmlchange PIO_TYPENAME=pnetcdf
 ./xmlchange PIO_NETCDF_FORMAT=64bit_data
 ./xmlchange DIN_LOC_ROOT="${E3SM_DIN}"

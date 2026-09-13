@@ -230,11 +230,11 @@ Pathfinder conventions already used in this repo (`TES_NORTHERA5_ref.sh`):
 | Machine | `--mach pathfinder` |
 | Compiler | `--compiler gnu --mpilib openmpi` |
 | Project root | `/projects/hpcl-cli185` |
-| `DIN_LOC_ROOT` | `/projects/hpcl-cli185/world-shared/e3sm` |
+| `DIN_LOC_ROOT` | `/projects/hpcl-cli185/world-shared/e3sm/inputdata` |
 | kmELM | `/projects/hpcl-cli185/proj-shared/wangd/kmELM` |
-| Queue example | `batch_ccsi` (TES cases) |
+| Queue | `parallel` with QOS `normal` (`batch_ccsi` is the old CADES partition and is not on this Pathfinder) |
 
-`lnd/clm_glacier_fixes_era5` **does not** contain Pathfinder machine files (same omission as the land science PRs). Those files must come from the Pathfinder overlay / a machines commit before `create_newcase --mach pathfinder` will work.
+`lnd/clm_glacier_fixes_era5` includes the Pathfinder machine overlay (`config_machines.xml`, `config_batch.xml`, `cmake_macros/pathfinder_gnu.cmake`). That overlay is additive and does not change the Frontier science through `2a1960cd8a`. Pathfinder has no MOAB, so Pathfinder create scripts set `COMP_INTERFACE=mct`.
 
 ### Keep identical (science)
 
@@ -273,7 +273,7 @@ bash case_gene/PathFinder/ERAf09/I1850ERACNPRDCTCBC_f09_finalspinup.sh
 4. `ROF_NCPL` must equal `LND_NCPL`.
 5. Recreating a case **deletes** `CASEROOT`. Load a CIME-capable Python first.
 6. Final `finidat` is a Frontier Lustre path today. On Pathfinder, either copy the AD restart or recreate AD there and point `finidat` at the new path.
-7. Parent `kmELM` `main` still records an older E3SM SHA. Pin `2a1960cd8a` explicitly when cloning for Pathfinder.
+7. Use this branch on both Frontier and Pathfinder. Science is `2a1960cd8a`; the Pathfinder machine overlay is `c2d41815c1`. Parent `kmELM` `main` records that tip.
 
 ---
 

@@ -7,7 +7,8 @@
 #   ${KMELM_ROOT}/e3sm_runs
 
 CLI185PROJ_ROOT="${CLI185PROJ_ROOT:-/projects/hpcl-cli185}"
-E3SM_DIN="${E3SM_DIN:-${CLI185PROJ_ROOT}/world-shared/e3sm}"
+# Stock files live under inputdata/, matching the pathfinder machine DIN_LOC_ROOT.
+E3SM_DIN="${E3SM_DIN:-${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata}"
 FORC_ROOT="${FORC_ROOT:-${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft}"
 
 if [[ -z "${KMELM_ROOT:-}" ]]; then
@@ -25,7 +26,9 @@ RUN_ROOT="${RUN_ROOT:-${KMELM_ROOT}/e3sm_runs}"
 MACH="${MACH:-pathfinder}"
 COMPILER="${COMPILER:-gnu}"
 MPILIB="${MPILIB:-openmpi}"
-JOB_QUEUE="${JOB_QUEUE:-batch_ccsi}"
+# Default: parallel, constrained to 128-core high-memory nodes (pfc001-pfc030 class).
+# Dedicated 20-node project partition: JOB_QUEUE=hpcl-cli185
+JOB_QUEUE="${JOB_QUEUE:-parallel}"
 MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE:-128}"
 
 if [[ ! -d "${E3SM_SRCROOT}/cime/scripts" ]]; then

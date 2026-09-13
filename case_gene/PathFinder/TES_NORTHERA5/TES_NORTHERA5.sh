@@ -4,15 +4,16 @@ set -e
 
 # Create a test case uELM_TES_SEBOX_I1850uELMCNPRDCTCBC
 
-#E3SM_DIN="/gpfs/wolf2/cades/cli185/proj-shared/pt-e3sm-inputdata"
-E3SM_DIN="//gpfs/wolf2/cades/cli185/world-shared/e3sm"
-DATA_ROOT="/gpfs/wolf2/cades/cli185/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH/"
-E3SM_SRCROOT=$(git rev-parse --show-toplevel)
+CLI185PROJ_ROOT="/projects/hpcl-cli185/"
+E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"
+DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
+KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
+E3SM_SRCROOT="${KMELM_ROOT}/E3SM"
 echo "E3SM_SRCROOT: $E3SM_SRCROOT"
 echo "E3SM_DIN: $E3SM_DIN"
 
 EXPID="NORTHERA5"
-CASEDIR="$E3SM_SRCROOT/e3sm_cases/uELM_${EXPID}_I1850uELMCNPRDCTCBC"
+CASEDIR="${KMELM_ROOT}/e3sm_cases/uELM_${EXPID}_I1850uELMCNPRDCTCBC"
 CASE_DATA="${DATA_ROOT}/entire_domain"
 DOMAIN_FILE="${EXPID}_domain.lnd.TES_NORTHERA5.4km.1d.c251009.nc"
 SURFDATA_FILE="${EXPID}_surfdata.TES_NORTHERA5.4km.1d.c251009.nc"
@@ -22,9 +23,12 @@ SURFDATA_FILE="${EXPID}_surfdata.TES_NORTHERA5.4km.1d.c251009.nc"
 
 #${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach summitPlus --compiler pgi --mpilib spectrum-mpi --compset I1850uELMCNPRDCTCBC --res ELM_USRDAT --pecount "${PECOUNT}" --handle-preexisting-dirs r --srcroot "${E3SM_SRCROOT}"
 
-${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach cades-baseline --compiler gnu --mpilib openmpi --compset I1850uELMTESCNPRDCTCBC --res ELM_USRDAT  --handle-preexisting-dirs r --srcroot "${E3SM_SRCROOT}"
+${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach pathfinder --compiler gnu --mpilib openmpi --compset I1850uELMTESCNPRDCTCBC --res ELM_USRDAT  --handle-preexisting-dirs r --srcroot "${E3SM_SRCROOT}"
 
 cd "${CASEDIR}"
+
+# Pathfinder has no MOAB; the share build fails if the case stays on driver-moab.
+./xmlchange COMP_INTERFACE=mct
 
 ./xmlchange PIO_TYPENAME="pnetcdf"
 
@@ -34,7 +38,7 @@ cd "${CASEDIR}"
 
 ./xmlchange DIN_LOC_ROOT_CLMFORC="${CASE_DATA}"
 
-./xmlchange CIME_OUTPUT_ROOT="${E3SM_SRCROOT}/e3sm_runs/"
+./xmlchange CIME_OUTPUT_ROOT="${KMELM_ROOT}/e3sm_runs/"
 
 ./xmlchange DATM_MODE="uELM_TES"
 
@@ -93,7 +97,8 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 ./case.build
 
-./xmlchange --force JOB_QUEUE="batch_ccsi"
+# Queue from the pathfinder Slurm definition (not CADES batch_ccsi).
+./xmlchange JOB_QUEUE="parallel"
 
 #./case.submit
 

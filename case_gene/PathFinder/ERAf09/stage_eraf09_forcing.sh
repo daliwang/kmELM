@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Pull ERA5_6hr_f09 forcing from Frontier/Orion onto this Pathfinder node.
-# Run on Pathfinder (pflogin). You will be prompted for OLCF SSH + RSA once;
-# later rsyncs reuse that connection.
+# Run on Pathfinder (pflogin). SSH user is wangd@frontier.olcf.ornl.gov.
+# You will be prompted for OLCF SSH + RSA once; later rsyncs reuse that connection.
 #
 #   MODE=smoke|spinup|full  (default: spinup)
 #   WITH_STOCK=1            also pull ~1.4 GB stock ELM/MOSART/mapping files
@@ -16,11 +16,12 @@ set -euo pipefail
 #   MODE=spinup WITH_STOCK=1 bash case_gene/PathFinder/ERAf09/stage_eraf09_forcing.sh
 
 SRC_HOST="${SRC_HOST:-frontier.olcf.ornl.gov}"
-SRC_USER="${SRC_USER:-${USER}}"
+# Pathfinder login user is not the Frontier account (7xw vs wangd).
+SRC_USER="${SRC_USER:-wangd}"
 SRC_FORC="${SRC_FORC:-/lustre/orion/cli115/world-shared/wangd/kiloCraft/ERA5_6hr_f09}"
 SRC_DIN="${SRC_DIN:-/lustre/orion/cli115/world-shared/e3sm/inputdata}"
 DEST_FORC="${DEST_FORC:-/projects/hpcl-cli185/proj-shared/wangd/kiloCraft/ERA5_6hr_f09}"
-DEST_DIN="${DEST_DIN:-/projects/hpcl-cli185/world-shared/e3sm}"
+DEST_DIN="${DEST_DIN:-/projects/hpcl-cli185/world-shared/e3sm/inputdata}"
 MODE="${MODE:-spinup}"
 WITH_STOCK="${WITH_STOCK:-0}"
 DRY_RUN="${DRY_RUN:-0}"

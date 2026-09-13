@@ -7,7 +7,7 @@ set -e
 #E3SM_DIN="/gpfs/wolf2/cades/cli185/proj-shared/pt-e3sm-inputdata"
 CLI185PROJ_ROOT="/projects/hpcl-cli185/"
 
-E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm"
+E3SM_DIN="${CLI185PROJ_ROOT}/world-shared/e3sm/inputdata"
 DATA_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kiloCraft/TES_cases_data/Daymet_ERA5_TESSFA_NORTH"
 KMELM_ROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM"
 E3SM_SRCROOT="${CLI185PROJ_ROOT}/proj-shared/wangd/kmELM/E3SM"
@@ -30,6 +30,9 @@ ${E3SM_SRCROOT}/cime/scripts/create_newcase --case "${CASEDIR}" --mach pathfinde
 
 cd "${CASEDIR}"
 
+# Pathfinder has no MOAB; the share build fails if the case stays on driver-moab.
+./xmlchange COMP_INTERFACE=mct
+
 ./xmlchange PIO_TYPENAME="pnetcdf"
 
 ./xmlchange PIO_NETCDF_FORMAT="64bit_data"
@@ -49,8 +52,8 @@ cd "${CASEDIR}"
 
 ./xmlchange NTASKS_PER_INST="1"
 
-./xmlchange MAX_MPITASKS_PER_NODE="64"
-#./xmlchange MAX_MPITASKS_PER_NODE="84"
+# Pathfinder nodes are 128 cores; matches the pathfinder machine file.
+./xmlchange MAX_MPITASKS_PER_NODE="128"
 
 ./xmlchange ATM_DOMAIN_PATH="${CASE_DATA}/domain_surfdata/"
 
@@ -98,7 +101,8 @@ echo "fsurdat = '${CASE_DATA}/domain_surfdata/${SURFDATA_FILE}'
 
 ./case.build
 
-./xmlchange --force JOB_QUEUE="batch_ccsi"
+# Queue from the pathfinder Slurm definition (not CADES batch_ccsi).
+./xmlchange JOB_QUEUE="parallel"
 
 #./case.submit
 

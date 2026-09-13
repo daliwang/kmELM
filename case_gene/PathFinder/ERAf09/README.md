@@ -28,10 +28,10 @@ Process note: `docs/I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`
 | Machine | `pathfinder` / `gnu` / `openmpi` |
 | Compset / res | `I1850ERACNPRDCTCBC` / `f09_f09` |
 | DATM | `ERAf09`, 1980–1999 (smoke: 1980 only) |
-| `DIN_LOC_ROOT` | `/projects/hpcl-cli185/world-shared/e3sm` |
+| `DIN_LOC_ROOT` | `/projects/hpcl-cli185/world-shared/e3sm/inputdata` |
 | `DIN_LOC_ROOT_CLMFORC` | `/projects/hpcl-cli185/proj-shared/wangd/kiloCraft` |
 | Forcing | `$DIN_LOC_ROOT_CLMFORC/ERA5_6hr_f09` |
-| Queue | `batch_ccsi` |
+| Queue | `parallel` (128-core high-memory `pfc001`–`pfc030`; override `JOB_QUEUE=hpcl-cli185` for the 20-node project partition) |
 | PE | 1280 tasks, 128 MPI/node (smoke: 128) |
 | Walltime | 06:00:00 (smoke: 02:00:00) |
 
