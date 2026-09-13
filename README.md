@@ -52,7 +52,12 @@ Forcing stage: `case_gene/PathFinder/ERAf09/DATA.md`.
 ### TES_NORTH (4 km)
 
 Different experiment. Scripts: `case_gene/PathFinder/TES_NORTHERA5/`.
-Use the `E3SM/` tree, not `E3SM-era5`. Notes:
+Use the `E3SM/` tree, not `E3SM-era5`.
+
+Domain size, Daymet–ERA5 forcing, NALCMS surfdata, ELM/CLM parameter files,
+and how to repeat the run on another machine:
+[`docs/TES_NORTH_baseline_on_pathfinder.md`](docs/TES_NORTH_baseline_on_pathfinder.md).
+Pathfinder create-script notes:
 [`case_gene/PathFinder/TES_NORTHERA5/README.md`](case_gene/PathFinder/TES_NORTHERA5/README.md).
 
 ## E3SM land developer testing (Frontier)

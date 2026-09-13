@@ -3,6 +3,10 @@
 4 km TES domain with Daymet-downscaled ERA5 (`DATM_MODE=uELM_TES`, `ELM_USRDAT`).
 This is **not** the global f09 ERA5 spinup in `../ERAf09/`.
 
+**Baseline (domain, forcing, surfdata, ELM/CLM parameters, how to repeat
+on another machine):**
+[`docs/TES_NORTH_baseline_on_pathfinder.md`](../../../docs/TES_NORTH_baseline_on_pathfinder.md).
+
 Use a **separate E3SM tree**. The f09 ERA5 branch lives in `E3SM-era5/`.
 TES scripts point at `${KMELM_ROOT}/E3SM`. See
 [`docs/e3sm_source_trees.md`](../../../docs/e3sm_source_trees.md).
