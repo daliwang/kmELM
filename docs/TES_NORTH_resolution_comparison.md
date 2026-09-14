@@ -225,6 +225,7 @@ Scientific caveats for peers:
 - Restart / history sizes: `kmELM/e3sm_runs/uELM_NORTHERA5_ERA5REF_I1850uELMCNPRDCTCBC{,_finalspin}/run`
 - AD and finalspin wall times: CaseStatus + restart timestamps (AD jobs 11892 / 12295; finalspin jobs 448042, 467648, 477999)
 - Mesh and configuration: `docs/TES_NORTH_baseline_on_pathfinder.md`
+- Full-domain vs 10% paths and Frontier copies: `docs/TES_NORTH_data_inventory_and_frontier_transfer.md`
 - Pathfinder limits: `E3SM/cime_config/machines/config_batch.xml` (`nodemax=30` / `20`, `walltimemax=24:00:00`)
 
 **Scaled (2 km, 1 km)**

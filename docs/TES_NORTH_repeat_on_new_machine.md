@@ -758,5 +758,7 @@ one segment finishes inside the queue wall with ~20% margin. Time a
 |---|---|
 | [`TES_NORTH_baseline_on_pathfinder.md`](./TES_NORTH_baseline_on_pathfinder.md) | As-run science, SHA256, DATM streams, Pathfinder PE |
 | [`TES_NORTH_resolution_comparison.md`](./TES_NORTH_resolution_comparison.md) | 4 / 2 / 1 km size and wall-time comparison |
+| [`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md) | Full-domain vs 10% data inventory; Pathfinder → Frontier copy log |
+| [`TES_NORTH_training_and_inference_guide.md`](./TES_NORTH_training_and_inference_guide.md) | New-user training (10%) and full-domain inference |
 | [`e3sm_source_trees.md`](./e3sm_source_trees.md) | Which E3SM checkout to use |
 | [`../case_gene/PathFinder/TES_NORTHERA5/README.md`](../case_gene/PathFinder/TES_NORTHERA5/README.md) | Pathfinder create scripts (do not run as-is on Polar) |

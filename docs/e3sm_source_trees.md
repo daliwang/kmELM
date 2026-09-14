@@ -85,3 +85,5 @@ AD/final cases were built from the submodule working tree on
 | ERA5 f09 Frontier smoke | [`I1850ERACNPRDCTCBC_f09_smoke1980_report.md`](./I1850ERACNPRDCTCBC_f09_smoke1980_report.md) |
 | TES_NORTH on Pathfinder | [`TES_NORTH_baseline_on_pathfinder.md`](./TES_NORTH_baseline_on_pathfinder.md) (domain / forcing / surfdata / params); create scripts: [`../case_gene/PathFinder/TES_NORTHERA5/README.md`](../case_gene/PathFinder/TES_NORTHERA5/README.md) |
 | TES_NORTH on a new machine (Polaris) | [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md) |
+| TES_NORTH data inventory + Frontier transfer | [`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md) |
+| TES_NORTH training and inference | [`TES_NORTH_training_and_inference_guide.md`](./TES_NORTH_training_and_inference_guide.md) |

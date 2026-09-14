@@ -564,6 +564,10 @@ is ~878 GB plus ~100 MB of domain/surfdata.
 Step-by-step for a new user, with **Polaris at ALCF** as the worked
 example (queues, PE, Globus, AI restart, AD then finalspin):
 [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md).
+Pathfinder vs Frontier data inventory and copy log (full domain and 10% subset):
+[`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md).
+New-user CNP training (10%) and full-domain inference:
+[`TES_NORTH_training_and_inference_guide.md`](./TES_NORTH_training_and_inference_guide.md).
 
 1. Clone `kmELM` and initialize the `E3SM` submodule. Checkout a branch that
    has `uELM_TES` (fork `master` or `TESSFA_4km`). Overlay Pathfinder (or your

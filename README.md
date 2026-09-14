@@ -58,6 +58,10 @@ Domain size, Daymet–ERA5 forcing, NALCMS surfdata, ELM/CLM parameter files:
 [`docs/TES_NORTH_baseline_on_pathfinder.md`](docs/TES_NORTH_baseline_on_pathfinder.md).
 Repeat AD + finalspin on a new machine (Polaris at ALCF worked example):
 [`docs/TES_NORTH_repeat_on_new_machine.md`](docs/TES_NORTH_repeat_on_new_machine.md).
+Full-domain vs 10% training subset inventory and Frontier copy log:
+[`docs/TES_NORTH_data_inventory_and_frontier_transfer.md`](docs/TES_NORTH_data_inventory_and_frontier_transfer.md).
+CNP training (10% sites) and full-domain inference:
+[`docs/TES_NORTH_training_and_inference_guide.md`](docs/TES_NORTH_training_and_inference_guide.md).
 Pathfinder create-script notes:
 [`case_gene/PathFinder/TES_NORTHERA5/README.md`](case_gene/PathFinder/TES_NORTHERA5/README.md).
 

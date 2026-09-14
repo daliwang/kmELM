@@ -7,6 +7,10 @@ This is **not** the global f09 ERA5 spinup in `../ERAf09/`.
 [`docs/TES_NORTH_baseline_on_pathfinder.md`](../../../docs/TES_NORTH_baseline_on_pathfinder.md).
 **Repeat AD + finalspin on another machine (Polaris example):**
 [`docs/TES_NORTH_repeat_on_new_machine.md`](../../../docs/TES_NORTH_repeat_on_new_machine.md).
+**Full-domain vs 10% inventory and Frontier copies:**
+[`docs/TES_NORTH_data_inventory_and_frontier_transfer.md`](../../../docs/TES_NORTH_data_inventory_and_frontier_transfer.md).
+**CNP training and full-domain inference:**
+[`docs/TES_NORTH_training_and_inference_guide.md`](../../../docs/TES_NORTH_training_and_inference_guide.md).
 
 Use a **separate E3SM tree**. The f09 ERA5 branch lives in `E3SM-era5/`.
 TES scripts point at `${KMELM_ROOT}/E3SM`. See
