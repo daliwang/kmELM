@@ -561,6 +561,10 @@ is ~878 GB plus ~100 MB of domain/surfdata.
 
 ## 10. Recreate on another computer
 
+Step-by-step for a new user, with **Polaris at ALCF** as the worked
+example (queues, PE, Globus, AI restart, AD then finalspin):
+[`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md).
+
 1. Clone `kmELM` and initialize the `E3SM` submodule. Checkout a branch that
    has `uELM_TES` (fork `master` or `TESSFA_4km`). Overlay Pathfinder (or your
    machine) files if that branch lacks them. See
