@@ -1,0 +1,23 @@
+Peatland simulations:
+/scratch/hpcl-cli185/zdr/e3sm_run/20260813_MNpeatlands2_ICB1850CNRDCTCBC_ad_spinup/run (adspinup)
+/scratch/hpcl-cli185/zdr/e3sm_run/20260813_MNpeatlands2_ICB1850CNPRDCTCBC/run (final spinup)
+The run directories contain the history, restart, surface and parameter files.
+The 22 PFT names can be listed by doing:  
+ncdump clm_params.nc -v pftname
+The surface data have an additional topounit dimension.  
+These additional variables will need to be incorporated:
+	double TopounitFracArea(topounit, gridcell) ;
+		TopounitFracArea:long_name = "fractional area of topounits" ;
+		TopounitFracArea:units = "unitless" ;
+	double TopounitAveElv(topounit, gridcell) ;
+		TopounitAveElv:long_name = "average elevation of each topounit" ;
+		TopounitAveElv:units = "m" ;
+	double TopounitLateralDist(topounit, gridcell) ;
+		TopounitLateralDist:long_name = "lateral distance for each topounit" ;
+		TopounitLateralDist:units = "m" ;
+	int TopounitIsBog(topounit, gridcell) ;
+		TopounitIsBog:long_name = "topounit bog flag" ;
+		TopounitIsBog:units = "1" ;
+	double TopounitPeatDepth(topounit, gridcell) ;
+		TopounitPeatDepth:long_name = "topounit peat depth" ;
+		TopounitPeatDepth:units = "m" ;

@@ -11,6 +11,7 @@ Related science/run docs:
 - Repeat AD/finalspin on a new machine: [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md)
 - Resolution sizes: [`TES_NORTH_resolution_comparison.md`](./TES_NORTH_resolution_comparison.md)
 - **Training and inference (10% → full domain):** [`TES_NORTH_training_and_inference_guide.md`](./TES_NORTH_training_and_inference_guide.md)
+- Minnesota peatland subset (not in the Frontier copy set): [`TES_NORTH_peatland_case.md`](./TES_NORTH_peatland_case.md)
 
 Repeatable copy scripts (run on Pathfinder, RSA passcode in a real terminal):
 

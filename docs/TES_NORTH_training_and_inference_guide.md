@@ -3,7 +3,8 @@
 **Date:** 2026-09-14  
 **Audience:** Someone who has not run the TES_NORTH CNP surrogate before and needs to (1) build a training set from the 10% sites, (2) train, (3) infer on the full 4 km domain, (4) write an ELM restart.  
 **Data inventory and Frontier copies:** [`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md).  
-**ELM AD / finalspin (after you have an AI restart):** [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md).
+**ELM AD / finalspin (after you have an AI restart):** [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md).  
+**Minnesota peatland subset (topounit surfdata, different PFT list):** [`TES_NORTH_peatland_case.md`](./TES_NORTH_peatland_case.md).
 
 This is **not** the global f09 ERA5 spinup. Do not mix `ERA5_6hr_f09` forcing into these configs.
 
