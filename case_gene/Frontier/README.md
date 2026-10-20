@@ -28,3 +28,17 @@ See [`docs/e3sm_source_trees.md`](../../docs/e3sm_source_trees.md).
 ```bash
 bash case_gene/Frontier/I1850ERACNPRDCTCBC_f09/I1850ERACNPRDCTCBC_f09_adspinup.sh
 ```
+
+## I1850GSWCNPRDCTCBCTOPPHSWFMCROP (GSWP3 global, AI4ELM AD)
+
+Perlmutter reproduction notes: [`docs/AI4ELM_Spinup_repeat.md`](../../docs/AI4ELM_Spinup_repeat.md).
+
+| Script | Role |
+|---|---|
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` | Cold-start AD spinup, GSWP3 1901–1920 cycle |
+
+Uses `E3SM-ai4elm` @ `48d8ff20cc` (`--driver moab`, `craygnu`). Custom surfdata/params/ndep/MOSART files: [`DATA.md`](I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md).
+
+```bash
+bash case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh
+```
