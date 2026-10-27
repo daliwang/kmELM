@@ -301,6 +301,32 @@ NERSC before multi-year AD. See `DATA.md` for the full checklist.
 Do not submit AD until custom files, the ne30pg2 domain, and GSWP3 1901–1920
 are present. Then `./case.build`, optional short smoke, then AD segments.
 
+## Pathfinder port (OLCF)
+
+Duplicate the Frontier cold-start case on Pathfinder using a dedicated pin plus
+a Pathfinder machine overlay (the science pin has no `pathfinder` machine entry).
+
+| Item | Value |
+|---|---|
+| Checklist / scripts | [`../case_gene/PathFinder/AI4ELM_GSW/README.md`](../case_gene/PathFinder/AI4ELM_GSW/README.md) |
+| Setup worktree | `bash scripts/setup_e3sm_ai4elm_worktree.sh` |
+| Stage from Frontier | `MODE=spinup bash case_gene/PathFinder/AI4ELM_GSW/stage_ai4elm_inputs.sh` |
+| Smoke (5 days, 128 ranks) | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke.sh` |
+| AD (default 1280 ranks) | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` |
+
+On Pathfinder after `git pull`:
+
+```bash
+cd /projects/hpcl-cli185/proj-shared/wangd/kmELM
+bash scripts/setup_e3sm_ai4elm_worktree.sh
+MODE=spinup bash case_gene/PathFinder/AI4ELM_GSW/stage_ai4elm_inputs.sh
+bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke.sh
+cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke && ./case.build && ./case.submit
+```
+
+Do not reuse `E3SM-era5` or TES `E3SM/` for this experiment. Details and data
+paths: [`../case_gene/PathFinder/AI4ELM_GSW/DATA.md`](../case_gene/PathFinder/AI4ELM_GSW/DATA.md).
+
 ## Final (normal) spinup after AD
 
 Create a new case from the same science branch/compset/grid. Turn off AD BGC

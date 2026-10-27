@@ -12,6 +12,7 @@ Only the **source** is split.
 | Tree | Branch (typical) | Experiment | Create scripts |
 |---|---|---|---|
 | **`E3SM-era5/`** | `lnd/clm_glacier_fixes_era5` @ `c2d41815c1` (science through `2a1960cd8a`) | Global f09 + remapped ERA5, compset `I1850ERACNPRDCTCBC`, `DATM_MODE=ERAf09` | `case_gene/PathFinder/ERAf09/` |
+| **`E3SM-ai4elm/`** | `ai4elm-spinup-pin` @ `48d8ff20cc` (+ Pathfinder machine overlay) | GSWP3 TOP/crop AD `I1850GSWCNPRDCTCBCTOPPHSWFMCROP` | `case_gene/PathFinder/AI4ELM_GSW/` |
 | **`E3SM/`** (submodule) | whatever the other project needs — often `TESSFA_4km` or `master` | TES_NORTH 4 km, `ELM_USRDAT`, `DATM_MODE=uELM_TES` | `case_gene/PathFinder/TES_NORTHERA5/` |
 
 Create or repair the ERA5 tree:
@@ -78,8 +79,12 @@ AD/final cases were built from the submodule working tree on
 
 AI4ELM GSWP3 TOP/crop AD uses **`E3SM-ai4elm`** pinned at
 `48d8ff20cc` (`ai4elm-spinup-pin` / `jinyuntang/elm/fix-top-crop-compsets`).
-Create script:
+Setup: `bash scripts/setup_e3sm_ai4elm_worktree.sh` (on Pathfinder, overlays
+`pathfinder` machine files from `lnd/clm_glacier_fixes_era5`).
+Frontier create:
 [`../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/`](../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/).
+Pathfinder create:
+[`../case_gene/PathFinder/AI4ELM_GSW/`](../case_gene/PathFinder/AI4ELM_GSW/).
 Perlmutter notes: [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md).
 
 ## Docs by experiment
@@ -89,7 +94,7 @@ Perlmutter notes: [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md).
 | ERA5 f09 spinup (Frontier as-run + Pathfinder port) | [`I1850ERACNPRDCTCBC_f09_era5_spinup_process.md`](./I1850ERACNPRDCTCBC_f09_era5_spinup_process.md) |
 | ERA5 f09 short card | [`I1850ERACNPRDCTCBC_f09_spinup_report.md`](./I1850ERACNPRDCTCBC_f09_spinup_report.md) |
 | ERA5 f09 Frontier smoke | [`I1850ERACNPRDCTCBC_f09_smoke1980_report.md`](./I1850ERACNPRDCTCBC_f09_smoke1980_report.md) |
-| AI4ELM GSWP3 TOP/crop AD (Frontier port) | [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md); create: `case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/` |
+| AI4ELM GSWP3 TOP/crop AD (Frontier + Pathfinder) | [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md); `case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/`; `case_gene/PathFinder/AI4ELM_GSW/` |
 | TES_NORTH on Pathfinder | [`TES_NORTH_baseline_on_pathfinder.md`](./TES_NORTH_baseline_on_pathfinder.md) (domain / forcing / surfdata / params); create scripts: [`../case_gene/PathFinder/TES_NORTHERA5/README.md`](../case_gene/PathFinder/TES_NORTHERA5/README.md) |
 | TES_NORTH on a new machine (Polaris) | [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md) |
 | TES_NORTH data inventory + Frontier transfer | [`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md) |

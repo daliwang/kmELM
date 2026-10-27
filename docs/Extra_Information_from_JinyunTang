@@ -1,0 +1,5 @@
+ fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata/surfdata_0.5x0.5_50pfts_20250528.nc'
+ paramfile = '/global/cfs/cdirs/e3sm/inputdata//lnd/clm2/paramdata/clm_params_c251006.nc'
+ frivinp_rtm = '/global/cfs/cdirs/e3sm/inputdata/rof/mosart/MOSART_Global_half_20250523.nc'
+parafile = '/global/cfs/cdirs/e3sm/inputdata/rof/mosart/global_reservoir_halfdegree_c20200917.nc'
+ stream_fldfilename_ndep = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/ndepdata/ndep_from_CMIP7_184901-202312_v2.0_1.9x2.5_aave_c260515.nc'

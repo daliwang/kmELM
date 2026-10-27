@@ -42,3 +42,5 @@ Uses `E3SM-ai4elm` @ `48d8ff20cc` (`--driver moab`, `craygnu`). Custom surfdata/
 ```bash
 bash case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh
 ```
+
+Pathfinder port of the same science: [`../PathFinder/AI4ELM_GSW/`](../PathFinder/AI4ELM_GSW/).

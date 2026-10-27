@@ -1,0 +1,30 @@
+# Globus transfer list for AI4ELM Frontier case
+# Source collection: NERSC Perlmutter (CFS) — path prefix /global/cfs/cdirs/e3sm/inputdata
+# Destination options:
+#   A) Flat staging (matches current user_nl_*):
+#        /lustre/orion/cli115/proj-shared/wangd/input_data/ai4elm_spinup/<basename>
+#   B) Mirror CFS layout under OLCF DIN_LOC_ROOT (preferred if you update namelists):
+#        /lustre/orion/cli115/world-shared/e3sm/inputdata/<relative path>
+#
+# Atmospheric GSWP3 1901-1920 (Solar/Precip/TPHWL) is ALREADY complete on Frontier.
+# Domain domain.lnd.ne30pg2_IcoswISC30E3r5.231121.nc is ALREADY present.
+# No GSWP3 monthly forcing files need Globus for this spinup cycle.
+#
+# Files still required by the case (check_input_data reports these missing
+# at the flat staging paths used by user_nl):
+
+# --- 5 custom land/river/ndep files (from Jinyun CFS locations) ---
+/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata/surfdata_0.5x0.5_50pfts_20250528.nc
+/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/paramdata/clm_params_c251006.nc
+/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/ndepdata/ndep_from_CMIP7_184901-202312_v2.0_1.9x2.5_aave_c260515.nc
+/global/cfs/cdirs/e3sm/inputdata/rof/mosart/MOSART_Global_half_20250523.nc
+/global/cfs/cdirs/e3sm/inputdata/rof/mosart/global_reservoir_halfdegree_c20200917.nc
+
+# Minimal Globus set if mirroring into OLCF DIN (2 already exist on Frontier DIN):
+# STILL MISSING on OLCF DIN:
+#   lnd/clm2/surfdata/surfdata_0.5x0.5_50pfts_20250528.nc
+#   lnd/clm2/ndepdata/ndep_from_CMIP7_184901-202312_v2.0_1.9x2.5_aave_c260515.nc
+#   rof/mosart/MOSART_Global_half_20250523.nc
+# ALREADY ON OLCF DIN (skip if using DIN paths in namelist):
+#   lnd/clm2/paramdata/clm_params_c251006.nc
+#   rof/mosart/global_reservoir_halfdegree_c20200917.nc
