@@ -5,7 +5,8 @@ Duplicate the Frontier cold-start AD experiment
 
 Perlmutter notes: [`docs/AI4ELM_Spinup_repeat.md`](../../../docs/AI4ELM_Spinup_repeat.md)  
 Frontier create: [`../../Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/`](../../Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/)  
-Jinyun CFS paths: [`docs/Extra_Information_from_JinyunTang.md`](../../../docs/Extra_Information_from_JinyunTang.md)
+Jinyun CFS paths: [`docs/Extra_Information_from_JinyunTang.md`](../../../docs/Extra_Information_from_JinyunTang.md)  
+Pathfinder status + LandSim plan: [`docs/AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](../../../docs/AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md)
 
 ## Checklist (on Pathfinder)
 
@@ -29,6 +30,13 @@ cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke
 bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh
 cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup
 ./case.build && ./case.submit
+
+# 5) 15-node parallel, 1 AD year from Jinyun finidat
+#    On disk: elm.r.0021 (not 0166). Edit user_nl_elm finidat or copy 0166 first.
+bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh
+# user_nl_elm: e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node/user_nl_elm
+cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node
+./case.build && ./case.submit
 ```
 
 ## Defaults
@@ -44,6 +52,7 @@ cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup
 | Custom data | `/projects/hpcl-cli185/proj-shared/wangd/input_data/ai4elm_spinup` |
 | Smoke PE | 128 tasks (1 node) |
 | AD PE | 1280 tasks (10×128); Pathfinder max ~30 nodes |
+| 15-node from Jinyun `finidat` | 1920 tasks, `parallel` / NDR, `--mem=500g`, 1 year; script default `0166` is **not** on Pathfinder (use `0021` or copy `0166`) |
 | Queue | `parallel` (override `JOB_QUEUE=hpcl-cli185` if needed) |
 
 Cases: `${KMELM_ROOT}/e3sm_cases/…`  

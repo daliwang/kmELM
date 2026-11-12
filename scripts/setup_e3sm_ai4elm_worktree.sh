@@ -52,14 +52,23 @@ if [[ "${HEAD}" != "${PIN_SHA}" ]]; then
   echo "WARNING: E3SM-ai4elm HEAD is ${HEAD}, expected ${PIN_SHA}" >&2
 fi
 
-echo "Initializing CIME / MCT / SCORPIO / FATES / sbetr (local object cache: E3SM/)"
-git -C "${E3SM_AI4}" submodule update --init --reference "${E3SM_MAIN}" \
+echo "Initializing CIME / MCT / SCORPIO / FATES / sbetr"
+echo "(object cache: each E3SM/<submodule>; the superproject checkout is shallow)"
+for sub in \
   cime \
   externals/mct \
   externals/scorpio \
   externals/scorpio_classic \
   components/elm/src/external_models/fates \
   components/elm/src/external_models/sbetr
+do
+  ref="${E3SM_MAIN}/${sub}"
+  if [[ -d "${ref}/.git" || -f "${ref}/.git" ]]; then
+    git -C "${E3SM_AI4}" submodule update --init --reference "${ref}" "${sub}"
+  else
+    git -C "${E3SM_AI4}" submodule update --init "${sub}"
+  fi
+done
 if [[ -d "${E3SM_AI4}/cime/.git" || -f "${E3SM_AI4}/cime/.git" ]]; then
   git -C "${E3SM_AI4}/cime" submodule update --init --recursive \
     --reference "${E3SM_MAIN}/cime" 2>/dev/null \
@@ -93,15 +102,21 @@ def extract(text, pattern, label):
         raise SystemExit(f"ERROR: missing {label} in donor")
     return m.group(1)
 
-def upsert(path, block, marker, close_tag):
+def upsert(path, block, marker, close_tag, before=None):
     text = path.read_text()
     if re.search(marker, text):
         print(f"  {path.name}: already has pathfinder — leaving as-is")
         return
-    m = re.search(rf"(</{close_tag}>\s*)\Z", text)
-    if not m:
-        raise SystemExit(f"ERROR: cannot find </{close_tag}> in {path}")
-    path.write_text(text[: m.start()] + block + text[m.start() :])
+    if before:
+        m = re.search(before, text)
+        if not m:
+            raise SystemExit(f"ERROR: cannot find insertion point {before} in {path}")
+        path.write_text(text[: m.start()] + block + text[m.start() :])
+    else:
+        m = re.search(rf"(</{close_tag}>\s*)\Z", text)
+        if not m:
+            raise SystemExit(f"ERROR: cannot find </{close_tag}> in {path}")
+        path.write_text(text[: m.start()] + block + text[m.start() :])
     print(f"  {path.name}: inserted pathfinder block")
 
 d_mach = (tmpdir / "donor_machines.xml").read_text()
@@ -111,12 +126,28 @@ mach = extract(
     r'(  <machine MACH="pathfinder">.*?</machine>\s*)',
     "pathfinder machine",
 )
+# Login-node SCORPIO C++ builds OOM at -j 4 (gcc 12).
+mach = mach.replace("<GMAKE_J>4</GMAKE_J>", "<GMAKE_J>2</GMAKE_J>", 1)
+if "MOAB_ROOT" not in mach:
+    mach = mach.replace(
+        '      <env name="BLASLAPACK_LIBDIR">$ENV{OLCF_OPENBLAS_ROOT}/lib</env>\n',
+        '      <env name="BLASLAPACK_LIBDIR">$ENV{OLCF_OPENBLAS_ROOT}/lib</env>\n'
+        '      <env name="MOAB_ROOT">/projects/hpcl-cli185/proj-shared/ccsi-apps/moab</env>\n'
+        '      <env name="LD_LIBRARY_PATH">/projects/hpcl-cli185/proj-shared/ccsi-apps/moab/lib:$ENV{LD_LIBRARY_PATH}</env>\n',
+        1,
+    )
 batch = extract(
     d_batch,
     r'(   <batch_system MACH="pathfinder".*?</batch_system>\s*)',
     "pathfinder batch",
 )
-upsert(dest / "cime_config/machines/config_machines.xml", mach, r'MACH="pathfinder"', "config_machines")
+upsert(
+    dest / "cime_config/machines/config_machines.xml",
+    mach,
+    r'MACH="pathfinder"',
+    "config_machines",
+    before=r"[ \t]*<default_run_suffix>",
+)
 upsert(dest / "cime_config/machines/config_batch.xml", batch, r'MACH="pathfinder"', "config_batch")
 PY
   rm -rf "${tmp}"

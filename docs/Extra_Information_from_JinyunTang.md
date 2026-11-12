@@ -56,5 +56,6 @@ rsync -avP --info=progress2 \
   "$DEST/"
 ```
 
-See also [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md) and
+See also [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md),
+[`AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](./AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md), and
 [`../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md`](../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md).

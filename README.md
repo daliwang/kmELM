@@ -49,6 +49,14 @@ Frontier AD + final spinup (completed) and Pathfinder port:
 Pathfinder create scripts: `case_gene/PathFinder/ERAf09/` (they use `E3SM-era5`).
 Forcing stage: `case_gene/PathFinder/ERAf09/DATA.md`.
 
+### AI4ELM GSWP3 TOP/crop (`I1850GSWCNPRDCTCBCTOPPHSWFMCROP`)
+
+Global 0.5° GSWP3 AD / crop / TOP. Use **`E3SM-ai4elm`**, not `E3SM-era5` or TES `E3SM/`.
+
+Perlmutter as-run: [`docs/AI4ELM_Spinup_repeat.md`](docs/AI4ELM_Spinup_repeat.md).  
+Pathfinder cases, data on disk, and LandSim plan from Jinyun restarts: [`docs/AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](docs/AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md).  
+Create scripts: [`case_gene/PathFinder/AI4ELM_GSW/`](case_gene/PathFinder/AI4ELM_GSW/).
+
 ### TES_NORTH (4 km)
 
 Different experiment. Scripts: `case_gene/PathFinder/TES_NORTHERA5/`.

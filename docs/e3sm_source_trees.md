@@ -95,6 +95,7 @@ Perlmutter notes: [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md).
 | ERA5 f09 short card | [`I1850ERACNPRDCTCBC_f09_spinup_report.md`](./I1850ERACNPRDCTCBC_f09_spinup_report.md) |
 | ERA5 f09 Frontier smoke | [`I1850ERACNPRDCTCBC_f09_smoke1980_report.md`](./I1850ERACNPRDCTCBC_f09_smoke1980_report.md) |
 | AI4ELM GSWP3 TOP/crop AD (Frontier + Pathfinder) | [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md); `case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/`; `case_gene/PathFinder/AI4ELM_GSW/` |
+| AI4ELM Pathfinder data, 15-node case, LandSim plan | [`AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](./AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md) |
 | TES_NORTH on Pathfinder | [`TES_NORTH_baseline_on_pathfinder.md`](./TES_NORTH_baseline_on_pathfinder.md) (domain / forcing / surfdata / params); create scripts: [`../case_gene/PathFinder/TES_NORTHERA5/README.md`](../case_gene/PathFinder/TES_NORTHERA5/README.md) |
 | TES_NORTH on a new machine (Polaris) | [`TES_NORTH_repeat_on_new_machine.md`](./TES_NORTH_repeat_on_new_machine.md) |
 | TES_NORTH data inventory + Frontier transfer | [`TES_NORTH_data_inventory_and_frontier_transfer.md`](./TES_NORTH_data_inventory_and_frontier_transfer.md) |

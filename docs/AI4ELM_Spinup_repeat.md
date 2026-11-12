@@ -313,6 +313,8 @@ a Pathfinder machine overlay (the science pin has no `pathfinder` machine entry)
 | Stage from Frontier | `MODE=spinup bash case_gene/PathFinder/AI4ELM_GSW/stage_ai4elm_inputs.sh` |
 | Smoke (5 days, 128 ranks) | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke.sh` |
 | AD (default 1280 ranks) | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` |
+| 15-node from Jinyun `finidat` | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh` |
+| Pathfinder inventory + LandSim plan | [`AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](./AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md) |
 
 On Pathfinder after `git pull`:
 
