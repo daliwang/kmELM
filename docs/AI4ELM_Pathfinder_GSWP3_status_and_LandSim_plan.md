@@ -4,6 +4,8 @@
 **Experiment:** `I1850GSWCNPRDCTCBCTOPPHSWFMCROP` @ `ne30pg2_r05_IcoswISC30E3r5`  
 **Source tree:** `E3SM-ai4elm` @ `48d8ff20cc` (`jinyuntang/elm/fix-top-crop-compsets`)
 
+Short note for other groups: [`AI4ELM_spinup_methodology_brief.md`](./AI4ELM_spinup_methodology_brief.md)  
+S2D adaptation requirements: [`AI4ELM_S2D_adaptation_requirements.md`](./AI4ELM_S2D_adaptation_requirements.md)  
 Perlmutter as-run: [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md)  
 Jinyun custom-file CFS paths: [`Extra_Information_from_JinyunTang.md`](./Extra_Information_from_JinyunTang.md)  
 Pathfinder scripts: [`../case_gene/PathFinder/AI4ELM_GSW/`](../case_gene/PathFinder/AI4ELM_GSW/)  
@@ -50,7 +52,9 @@ Then one of:
 |---|---|---|---|
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_smoke` | 5 model days, 128 ranks, cold start | **RUN PASS** job `1103841` (2026-10-30) |
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup` | Multi-year AD from year 1; default 1280 ranks / 10 nodes | Case exists; not the LandSim path |
-| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node` | 15 nodes / 1920 ranks, `parallel`+NDR, `--mem=500g`, 1 AD year from `finidat` | Case created; **`finidat` still names missing `elm.r.0166`** |
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node` | 15 nodes / 1920 ranks, `hpcl-cli185`, `--mem=450g`, 1 AD year from on-disk `elm.r.0021` | Built + submitted 2026-11-24 job `1373177` (PD Resources) |
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node` | 15 nodes / 1920 ranks, `parallel`+NDR, 1 AD year from `0166` | Legacy; **`elm.r.0166` missing** — use `ad0021_15node` instead |
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node` | 15 nodes / 1920 ranks, `hpcl-cli185`, `--mem=450g`, 1 regular year from AD `0166` (`spinup_state=0`) | Case created 2026-11-24; **`finidat` still names missing `elm.r.0166`** |
 
 Cases: `${KMELM_ROOT}/e3sm_cases/`  
 Runs: `${KMELM_ROOT}/e3sm_runs/`  
