@@ -54,7 +54,7 @@ Then one of:
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup` | Multi-year AD from year 1; default 1280 ranks / 10 nodes | Case exists; not the LandSim path |
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node` | 15 nodes / 1920 ranks, `hpcl-cli185`, `--mem=450g`, 1 AD year from on-disk `elm.r.0021` | Built + submitted 2026-11-24 job `1373177` (PD Resources) |
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node` | 15 nodes / 1920 ranks, `parallel`+NDR, 1 AD year from `0166` | Legacy; **`elm.r.0166` missing** — use `ad0021_15node` instead |
-| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node` | 15 nodes / 1920 ranks, `hpcl-cli185`, `--mem=450g`, 1 regular year from AD `0166` (`spinup_state=0`) | Case created 2026-11-24; **`finidat` still names missing `elm.r.0166`** |
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node.sh` | `e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node` | 15 nodes / 1920 ranks, `hpcl-cli185`, `--mem=450g`, 1 regular year from rg.spinup `0269` (`spinup_state=0`) | Replaces `rg0166`; **on-disk `0269` is currently 0 bytes — recopy before submit** |
 
 Cases: `${KMELM_ROOT}/e3sm_cases/`  
 Runs: `${KMELM_ROOT}/e3sm_runs/`  

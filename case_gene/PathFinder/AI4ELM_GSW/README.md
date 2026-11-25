@@ -42,10 +42,10 @@ ncdump -h "$(grep finidat user_nl_elm | sed -n "s/.*'\(.*\)'.*/\1/p")" | grep 'g
 # 5b) Legacy: 15-node parallel AD from elm.r.0166 (0166 not on Pathfinder)
 # bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0166_15node.sh
 
-# 6) 15-node hpcl-cli185, 1 regular-spinup year from Jinyun AD elm.r.0166
-#    Copy 0166 first (not on Pathfinder yet). AD off / spinup_state=0.
-bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node.sh
-cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node
+# 6) 15-node hpcl-cli185, 1 regular-spinup year from Jinyun rg.spinup elm.r.0269
+#    AD off / spinup_state=0. Confirm 0269 file is non-empty before submit.
+bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node.sh
+cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node
 ./case.build && ./case.submit
 ```
 
@@ -64,8 +64,8 @@ cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node
 | AD PE | 1280 tasks (10×128); Pathfinder max ~30 nodes |
 | 15-node AD from Jinyun `0021` | 1920 tasks, `hpcl-cli185`, `--mem=450g`, 1 year; `finidat` = on-disk `elm.r.0021` |
 | 15-node AD from Jinyun `0166` (legacy) | 1920 tasks, `parallel` / NDR; `0166` **not** on Pathfinder |
-| 15-node regular from Jinyun `0166` | 1920 tasks, `hpcl-cli185`, `--mem=450g`, 1 year; `spinup_state=0`, AD off; copy `0166` before submit |
-| Queue | `parallel` (override `JOB_QUEUE=hpcl-cli185` if needed); ad0021 / rg0166 default to `hpcl-cli185` |
+| 15-node regular from Jinyun `0269` | 1920 tasks, `hpcl-cli185`, `--mem=450g`, 1 year; `spinup_state=0`, AD off; `finidat` = rg.spinup `elm.r.0269` |
+| Queue | `parallel` (override `JOB_QUEUE=hpcl-cli185` if needed); ad0021 / rg0269 default to `hpcl-cli185` |
 
 Cases: `${KMELM_ROOT}/e3sm_cases/…`  
 Runs: `${KMELM_ROOT}/e3sm_runs/…`

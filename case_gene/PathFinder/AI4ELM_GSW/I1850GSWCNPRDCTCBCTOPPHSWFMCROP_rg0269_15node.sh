@@ -2,25 +2,22 @@
 set -euo pipefail
 
 # Pathfinder 15-node (1920 MPI) 1-year regular (normal) spinup segment
-# starting from Jinyun's Perlmutter AD restart (0166-01-01).
+# starting from Jinyun's rg.spinup restart elm.r.0269-01-01.
 #
 # Science matches the smoke / AD scripts (GSWP3 TOP/crop) but AD is off:
 #   ELM_ACCELERATED_SPINUP=off, spinup_state=0, no -bgc_spinup on.
-# Queue: hpcl-cli185. Slurm memory: 500g/node (~503 GB available).
+# Queue: hpcl-cli185. Slurm memory: 450g/node (nodes ~503 GB; 500g is rejected).
 #
-#   bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node.sh
-#   cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node
+#   bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node.sh
+#   cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node
 #   ./case.build && ./case.submit
 #
 # user_nl_elm is written into the case directory (not under E3SM-ai4elm):
-#   ${KMELM_ROOT}/e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node/user_nl_elm
+#   ${KMELM_ROOT}/e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node/user_nl_elm
 # After preview_namelists, the resolved file is CaseDocs/lnd_in (finidat=...).
 #
-# Jinyun AD restart (Perlmutter; copy the elm.r here before submit):
-#   /pscratch/sd/j/jinyun/e3sm_scratch/pm-cpu/20261009.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.ad.spinup/run/20261009.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.ad.spinup.elm.r.0166-01-01-00000.nc
-#
-# Do not CONTINUE_RUN from the Perlmutter run dir: that coupler restart is
-# 3072 ranks. This case is startup + ELM finidat only (MOSART/DATM/cpl cold).
+# Do not CONTINUE_RUN from a Perlmutter coupler restart (PE-specific).
+# This case is startup + ELM finidat only (MOSART/DATM/cpl cold).
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Capture before env.sh defaults JOB_QUEUE=parallel.
@@ -41,20 +38,20 @@ if sys.version_info < (3, 9):
 print("Using Python %s (%s)" % (sys.version.split()[0], sys.executable))
 PY
 
-CASE_NAME="${CASE_NAME:-I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0166_15node}"
+CASE_NAME="${CASE_NAME:-I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node}"
 CASEDIR="${CASE_ROOT}/${CASE_NAME}"
 NTASKS_ALL="${NTASKS_ALL:-1920}"   # 15 nodes x 128
 WALLTIME="${WALLTIME:-12:00:00}"
 STOP_N="${STOP_N:-1}"
-MEM_GB="${MEM_GB:-500}"
-RUN_STARTDATE="${RUN_STARTDATE:-0166-01-01}"
+MEM_GB="${MEM_GB:-450}"
+RUN_STARTDATE="${RUN_STARTDATE:-0269-01-01}"
 
-AD_FINIDAT="${AD_FINIDAT:-${CUSTOM_DATA}/20261009.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.ad.spinup.elm.r.0166-01-01-00000.nc}"
+RG_FINIDAT="${RG_FINIDAT:-${CUSTOM_DATA}/AI_restart_files_Jinyun/20261025.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.rg.spinup.elm.r.0269-01-01-00000.nc}"
 
 echo "E3SM_SRCROOT:  ${E3SM_SRCROOT}"
 echo "CASEDIR:       ${CASEDIR}"
 echo "CUSTOM_DATA:   ${CUSTOM_DATA}"
-echo "AD_FINIDAT:    ${AD_FINIDAT}"
+echo "RG_FINIDAT:    ${RG_FINIDAT}"
 echo "NTASKS_ALL:    ${NTASKS_ALL}  (15 nodes x 128 if default)"
 echo "JOB_QUEUE:     ${JOB_QUEUE}"
 echo "MEM_GB:        ${MEM_GB}"
@@ -78,13 +75,12 @@ if [[ "${missing}" -eq 1 ]]; then
   echo "WARNING: stage inputs first: bash ${SCRIPT_DIR}/stage_ai4elm_inputs.sh"
 fi
 
-if [[ ! -f "${AD_FINIDAT}" ]]; then
-  echo "WARNING: Jinyun AD restart is not on Pathfinder yet:"
-  echo "  ${AD_FINIDAT}"
-  echo "Copy from Perlmutter before ./case.submit, for example:"
-  echo "  scp wangd@perlmutter.nersc.gov:/pscratch/sd/j/jinyun/e3sm_scratch/pm-cpu/20261009.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.ad.spinup/run/20261009.I1850GSWCNPRDCTCBCTOPPHSWFMCROP.ad.spinup.elm.r.0166-01-01-00000.nc \\"
-  echo "    ${AD_FINIDAT}"
-  echo "Or set AD_FINIDAT=/path/to/the.elm.r.0166-01-01-00000.nc"
+if [[ ! -f "${RG_FINIDAT}" ]]; then
+  echo "WARNING: Jinyun rg.spinup restart elm.r.0269 not found:"
+  echo "  ${RG_FINIDAT}"
+  echo "Or set RG_FINIDAT=/path/to/the.elm.r.0269-01-01-00000.nc"
+elif [[ ! -s "${RG_FINIDAT}" ]]; then
+  echo "WARNING: ${RG_FINIDAT} exists but is empty (0 bytes). Recopy before submit."
 fi
 
 if [[ "${NTASKS_ALL}" -ne 1920 ]]; then
@@ -148,7 +144,7 @@ cd "${CASEDIR}"
 ./xmlchange NTASKS_GLC="${NTASKS_ALL}"
 ./xmlchange NTASKS_WAV="${NTASKS_ALL}"
 
-# Regular spinup from Jinyun AD elm.r.0166: spinup_state=0, AD off in XML above.
+# Regular spinup from Jinyun rg.spinup elm.r.0269: spinup_state=0, AD off in XML above.
 cat > user_nl_elm <<EOF
  spinup_state = 0
  suplnitro = 'NONE'
@@ -160,7 +156,7 @@ cat > user_nl_elm <<EOF
  check_finidat_fsurdat_consistency = .false.
  check_finidat_year_consistency = .false.
  hist_dov2xy = .true.,.true.
- finidat = '${AD_FINIDAT}'
+ finidat = '${RG_FINIDAT}'
  fsurdat = '${CUSTOM_DATA}/surfdata_0.5x0.5_50pfts_20250528.nc'
  paramfile = '${CUSTOM_DATA}/clm_params_c251006.nc'
  stream_fldfilename_ndep = '${CUSTOM_DATA}/ndep_from_CMIP7_184901-202312_v2.0_1.9x2.5_aave_c260515.nc'
@@ -181,7 +177,7 @@ touch user_nl_datm user_nl_cpl
 ./case.setup
 ./xmlchange --force JOB_QUEUE="${JOB_QUEUE}"
 
-# Machine default is --mem=400g. Raise to ~full hpcl-cli185 node RAM.
+# Machine default is --mem=400g. Raise for hpcl-cli185 (~503 GB RealMemory).
 for envf in env_batch.xml LockedFiles/env_batch.xml; do
   if [[ -f "${envf}" ]]; then
     sed -i -E "s/--mem=[0-9]+[gG]/--mem=${MEM_GB}g/" "${envf}"
@@ -191,9 +187,32 @@ if ! grep -q -- "--mem=${MEM_GB}g" env_batch.xml; then
   echo "WARNING: failed to set --mem=${MEM_GB}g in env_batch.xml; edit it before submit." >&2
 fi
 
+# case.setup may leave .case.run with parallel/NDR/-q normal; rewrite for this queue.
+if [[ -f .case.run ]]; then
+  python3 - "${MEM_GB}" "${JOB_QUEUE}" <<'PY'
+import sys
+from pathlib import Path
+mem_gb, queue = sys.argv[1], sys.argv[2]
+p = Path(".case.run")
+lines = p.read_text().splitlines(True)
+out = []
+for line in lines:
+    if line.startswith("#SBATCH") and "--mem=" in line:
+        out.append(f"#SBATCH  --mem={mem_gb}g\n")
+    elif line.startswith("#SBATCH") and ("-q " in line or "--qos" in line):
+        out.append(f"#SBATCH  -q {queue}\n")
+    elif line.startswith("#SBATCH") and "--constraint=" in line:
+        pass  # drop NDR constraint on hpcl-cli185
+    else:
+        out.append(line)
+p.write_text("".join(out))
+print(f"Patched .case.run for queue={queue} mem={mem_gb}g")
+PY
+fi
+
 ./preview_namelists
 
-echo "==== 15-node regular-spinup-from-0166 config ===="
+echo "==== 15-node regular-spinup-from-0269 config ===="
 ./xmlquery COMPSET,GRID,COMP_INTERFACE,DATM_MODE
 ./xmlquery RUN_STARTDATE,STOP_OPTION,STOP_N,NTASKS,JOB_QUEUE,JOB_WALLCLOCK_TIME
 ./xmlquery ELM_ACCELERATED_SPINUP,ELM_FORCE_COLDSTART
@@ -205,8 +224,6 @@ grep -E 'finidat|spinup_state' user_nl_elm || true
 echo
 echo "Case created: ${CASEDIR}"
 echo "user_nl_elm:  ${CASEDIR}/user_nl_elm"
-echo "Next:"
-echo "  1. Place Jinyun elm.r.0166 at:"
-echo "       ${AD_FINIDAT}"
-echo "  2. cd ${CASEDIR} && ./case.build && ./case.submit"
+echo "finidat:      ${RG_FINIDAT}"
+echo "Next: cd ${CASEDIR} && ./case.build && ./case.submit"
 echo "Queue hpcl-cli185: 15 of 20 nodes; --mem=${MEM_GB}g per node."
