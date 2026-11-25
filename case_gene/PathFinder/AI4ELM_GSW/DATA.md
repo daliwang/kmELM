@@ -74,6 +74,18 @@ scp -r wangd@frontier.olcf.ornl.gov:/lustre/orion/cli115/world-shared/wangd/kmEL
 
 On Pathfinder as of 2026-11-12: AD `elm.r.0021` (22 GB, `gridcell=94838`) and rg/normal `elm.r.0202` (47 MB, same dims — verify before LandSim). **`elm.r.0166` is not present.** The 15-node case `user_nl_elm` still names `0166`; retarget `finidat` to `0021` or copy `0166` before submit. Details: the status/LandSim report linked above.
 
+**Mesh rule (Frontier job 5988293):** current GSW TOP/crop cases expect
+`gridcell=94838`. Flat Frontier copies `20261015…elm.r.0018/0020/0022` are
+**94935** and will abort at `finidat` read. Always:
+
+```bash
+ncdump -h "$FINIDAT" | grep 'gridcell ='   # must be 94838
+```
+
+Full inventory + fix steps:
+[`docs/AI4ELM_finidat_gridcell_mismatch.md`](../../../docs/AI4ELM_finidat_gridcell_mismatch.md).
+
+
 Perlmutter `0166` (if still needed):
 
 ```text

@@ -59,11 +59,11 @@ fi
 CASE_NAME="I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup"
 CASEDIR="${E3SM_SRCROOT}/e3sm_cases/${CASE_NAME}"
 
-# ~24 Perlmutter nodes x 128 ranks ≈ 3072; on Frontier use 64 MPI/node → 48 nodes.
-# Stay under 92 nodes so default batch walltimemax is 2:00:00.
-NTASKS_ALL="${NTASKS_ALL:-3072}"
+# Default PE for AD; override NTASKS_ALL=128 for smoke. Use MCT (moab crashed
+# on Frontier during ATM mesh load / Zoltan). 64 MPI/node on Frontier CPU.
+NTASKS_ALL="${NTASKS_ALL:-1280}"
 MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE:-64}"
-# 2 model years fits a 2 h Frontier slot at ~Perlmutter SYPD; tune after smoke.
+# 2 model years; Frontier walltimemax is 2:00:00 below 92 nodes — tune after smoke.
 STOP_N="${STOP_N:-2}"
 
 echo "E3SM_SRCROOT: ${E3SM_SRCROOT}"
@@ -99,7 +99,7 @@ mkdir -p "${E3SM_SRCROOT}/e3sm_cases"
   --compiler craygnu \
   --compset I1850GSWCNPRDCTCBCTOPPHSWFMCROP \
   --res ne30pg2_r05_IcoswISC30E3r5 \
-  --driver moab \
+  --driver mct \
   --project cli115 \
   --walltime 02:00:00 \
   --handle-preexisting-dirs r \

@@ -192,7 +192,28 @@ the missing years/streams from NERSC into that OLCF directory (~60 GB full set
 
 ---
 
-## D. Ready checklist
+## D. Jinyun restarts / code-start AD (mesh-critical)
+
+Curated copies (use these — `gridcell=94838`):
+
+```text
+/lustre/orion/cli115/world-shared/wangd/kmELM/E3SM-ai4elm/AI_restart_files_Jinyun/
+  20261009.…ad.spinup.elm.r.0021-01-01-00000.nc   # preferred finidat
+```
+
+Flat staging under `…/input_data/ai4elm_spinup/` also has
+`20261015.…elm.r.0018/0020/0022` with **`gridcell=94935`**. Those abort the
+current case mesh (`94838`). Job **5988293** hit that failure.
+
+Code-start create script (30 nodes × 60 MPI, 1 year from `0021`):
+
+```bash
+bash case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_30node.sh
+```
+
+Report: [`docs/AI4ELM_finidat_gridcell_mismatch.md`](../../../docs/AI4ELM_finidat_gridcell_mismatch.md).
+
+## E. Ready checklist
 
 ```bash
 CASE=.../I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup

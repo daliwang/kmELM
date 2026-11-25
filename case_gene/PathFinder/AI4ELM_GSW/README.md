@@ -31,9 +31,12 @@ bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh
 cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup
 ./case.build && ./case.submit
 
-# 5) 15-node hpcl-cli185, 1 AD year from Jinyun elm.r.0021 (on disk)
+# 5) 15-node hpcl-cli185, 1 AD year from Jinyun elm.r.0021 (on disk, gridcell=94838)
+#    Do NOT point finidat at Frontier flat 20261015…elm.r.0020 (94935) — see
+#    docs/AI4ELM_finidat_gridcell_mismatch.md
 bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node.sh
 cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node
+ncdump -h "$(grep finidat user_nl_elm | sed -n "s/.*'\(.*\)'.*/\1/p")" | grep 'gridcell ='
 ./case.build && ./case.submit
 
 # 5b) Legacy: 15-node parallel AD from elm.r.0166 (0166 not on Pathfinder)

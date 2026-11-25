@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Pathfinder 15-node (1920 MPI) 1-year AD segment starting from Jinyun's
 # AD restart elm.r.0021 (on Pathfinder under AI_restart_files_Jinyun/).
+# Requires gridcell=94838 (same mesh as smoke / Frontier MCT case).
 #
 # Science matches the smoke / AD scripts (GSWP3 TOP/crop, spinup_state=1).
 # Queue: hpcl-cli185. Slurm memory: 450g/node (nodes ~503 GB; 500g is rejected).
@@ -17,6 +18,9 @@ set -euo pipefail
 #
 # Do not CONTINUE_RUN from the Perlmutter run dir: that coupler restart is
 # 3072 ranks. This case is startup + ELM finidat only (MOSART/DATM/cpl cold).
+#
+# Do NOT use Frontier flat ai4elm_spinup/20261015…elm.r.0018/0020/0022
+# (gridcell=94935). See docs/AI4ELM_finidat_gridcell_mismatch.md.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Capture before env.sh defaults JOB_QUEUE=parallel.
@@ -78,6 +82,13 @@ if [[ ! -f "${AD_FINIDAT}" ]]; then
   echo "WARNING: Jinyun AD restart elm.r.0021 not found:"
   echo "  ${AD_FINIDAT}"
   echo "Or set AD_FINIDAT=/path/to/the.elm.r.0021-01-01-00000.nc"
+elif command -v ncdump >/dev/null 2>&1; then
+  gc="$(ncdump -h "${AD_FINIDAT}" 2>/dev/null | sed -n 's/.*gridcell = \([0-9]*\).*/\1/p' | head -1)"
+  echo "AD_FINIDAT gridcell=${gc:-unknown} (expect 94838)"
+  if [[ -n "${gc}" && "${gc}" != "94838" ]]; then
+    echo "ERROR: finidat gridcell=${gc} != 94838. See docs/AI4ELM_finidat_gridcell_mismatch.md" >&2
+    exit 1
+  fi
 fi
 
 if [[ "${NTASKS_ALL}" -ne 1920 ]]; then

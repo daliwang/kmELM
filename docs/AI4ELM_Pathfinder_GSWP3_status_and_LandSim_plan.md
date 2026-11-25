@@ -23,7 +23,7 @@ This is **not** TES_NORTH 4 km ERA5 and **not** the global f09 ERA5 spinup.
 |---|---|
 | Compset alias | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP` |
 | Longname | `1850_DATM%GSWP3v1_ELM%CNPRDCTCBCTOPPHSWFMCROP_SICE_SOCN_MOSART_SGLC_SWAV_SIAC_SESP` |
-| Land/river grid | Global 0.5°; compacted land `gridcell=94838` on Jinyun `elm.r` files |
+| Land/river grid | Global 0.5°; compacted land `gridcell=94838` on Jinyun `elm.r` files (reject flat `20261015…0020` = **94935**; see [`AI4ELM_finidat_gridcell_mismatch.md`](./AI4ELM_finidat_gridcell_mismatch.md)) |
 | Forcing | GSWP3 v1, 1901–1920, `DATM_CLMNCEP_YR_ALIGN=1` |
 | Coupling | `ATM_NCPL=48`, `ROF_NCPL=8` |
 | Jinyun Perlmutter AD | 3072 ranks / 24 nodes; pointers reached **0166-01-01** (165 AD years) |

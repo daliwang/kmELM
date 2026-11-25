@@ -253,8 +253,10 @@ below 92 nodes.
 |---|---|
 | Source tree | `E3SM-ai4elm` @ `48d8ff20cc` (CIME `bacb0a2c`) |
 | Create script | `case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` |
+| Code-start AD (30×60, `elm.r.0021`) | `…/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_30node.sh` |
 | Case directory | `E3SM-ai4elm/e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup` |
 | Data staging guide | [`../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md`](../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md) |
+| `finidat` mesh note | [`AI4ELM_finidat_gridcell_mismatch.md`](./AI4ELM_finidat_gridcell_mismatch.md) (`94838` vs `94935`) |
 | Layout | 3072 MPI ranks, 48 nodes × 64, `STOP_N=2` years, walltime `02:00:00` |
 
 ```bash
