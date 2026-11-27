@@ -36,6 +36,7 @@ Perlmutter reproduction notes: [`docs/AI4ELM_Spinup_repeat.md`](../../docs/AI4EL
 | Script | Role |
 |---|---|
 | `I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh` | Cold-start AD spinup, GSWP3 1901–1920 cycle |
+| `I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_30node.sh` | 30×8 code-start from `elm.r.0021` (`PIO=netcdf`) |
 
 Uses `E3SM-ai4elm` @ `48d8ff20cc` (`--driver moab`, `craygnu`). Custom surfdata/params/ndep/MOSART files: [`DATA.md`](I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md).
 

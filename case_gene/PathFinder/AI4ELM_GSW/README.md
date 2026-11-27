@@ -31,9 +31,9 @@ bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup.sh
 cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_adspinup
 ./case.build && ./case.submit
 
-# 5) 15-node hpcl-cli185, 1 AD year from Jinyun elm.r.0021 (on disk, gridcell=94838)
-#    Do NOT point finidat at Frontier flat 20261015…elm.r.0020 (94935) — see
-#    docs/AI4ELM_finidat_gridcell_mismatch.md
+# 5) 15-node hpcl-cli185, 1 AD year from Jinyun elm.r.0021 (120 ranks = 15×8)
+#    gridcell=94838. Do NOT use 128 MPI/node — see
+#    docs/AI4ELM_mct_restart_memory.md and docs/AI4ELM_finidat_gridcell_mismatch.md
 bash case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node.sh
 cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node
 ncdump -h "$(grep finidat user_nl_elm | sed -n "s/.*'\(.*\)'.*/\1/p")" | grep 'gridcell ='
@@ -62,7 +62,7 @@ cd e3sm_cases/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_rg0269_15node
 | Custom data | `/projects/hpcl-cli185/proj-shared/wangd/input_data/ai4elm_spinup` |
 | Smoke PE | 128 tasks (1 node) |
 | AD PE | 1280 tasks (10×128); Pathfinder max ~30 nodes |
-| 15-node AD from Jinyun `0021` | 1920 tasks, `hpcl-cli185`, `--mem=450g`, 1 year; `finidat` = on-disk `elm.r.0021` |
+| 15-node AD from Jinyun `0021` | 120 tasks (15×8), `PIO=netcdf`, `hpcl-cli185`, `--mem=450g`, 1 year; `finidat` = on-disk `elm.r.0021` |
 | 15-node AD from Jinyun `0166` (legacy) | 1920 tasks, `parallel` / NDR; `0166` **not** on Pathfinder |
 | 15-node regular from Jinyun `0269` | 1920 tasks, `hpcl-cli185`, `--mem=450g`, 1 year; `spinup_state=0`, AD off; `finidat` = rg.spinup `elm.r.0269` |
 | Queue | `parallel` (override `JOB_QUEUE=hpcl-cli185` if needed); ad0021 / rg0269 default to `hpcl-cli185` |

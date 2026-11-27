@@ -95,7 +95,9 @@ finidat = '<path-above>'
 | Frontier | `case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_30node.sh` |
 | Pathfinder | `case_gene/PathFinder/AI4ELM_GSW/I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node.sh` |
 
-Both default to `elm.r.0021` (`94838`), `spinup_state=1`, `ELM_FORCE_COLDSTART=off`.
+Both default to `elm.r.0021` (`94838`), `spinup_state=1`, `ELM_FORCE_COLDSTART=off`,
+**8 MPI/node**, and `PIO_TYPENAME=netcdf`. Dense packing aborts after the
+restart read. See [`AI4ELM_mct_restart_memory.md`](./AI4ELM_mct_restart_memory.md).
 
 ### 4. Quick mesh check before submit
 
@@ -122,5 +124,6 @@ If you see `94935`, stop and retarget `finidat`.
 - Perlmutter as-run: [`AI4ELM_Spinup_repeat.md`](./AI4ELM_Spinup_repeat.md)
 - Jinyun CFS paths: [`Extra_Information_from_JinyunTang.md`](./Extra_Information_from_JinyunTang.md)
 - Pathfinder status / LandSim: [`AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md`](./AI4ELM_Pathfinder_GSWP3_status_and_LandSim_plan.md)
+- Restart memory packing: [`AI4ELM_mct_restart_memory.md`](./AI4ELM_mct_restart_memory.md)
 - Frontier staging: [`../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md`](../case_gene/Frontier/I1850GSWCNPRDCTCBCTOPPHSWFMCROP/DATA.md)
 - Pathfinder staging: [`../case_gene/PathFinder/AI4ELM_GSW/DATA.md`](../case_gene/PathFinder/AI4ELM_GSW/DATA.md)

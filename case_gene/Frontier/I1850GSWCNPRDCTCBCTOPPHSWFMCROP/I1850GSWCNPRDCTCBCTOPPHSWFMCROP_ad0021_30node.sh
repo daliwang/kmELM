@@ -1,8 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-# Frontier 30-node (1800 MPI = 30 x 60) 1-year AD segment starting from
+# Frontier 30-node (240 MPI = 30 x 8) 1-year AD segment starting from
 # Jinyun's AD restart elm.r.0021 (startup + ELM finidat only; gridcell=94838).
+#
+# 8 MPI/node is required. Job 5994423 (128 ranks at 64/node) read the 57 GB
+# elm.r then aborted in MCT map init (MaxRSS ~44 GiB/rank, ~8 GiB available).
+# Job 6005996 (128 ranks at 8/node, PIO=netcdf) finished a 5-day CONTINUE.
+# See docs/AI4ELM_mct_restart_memory.md.
 #
 # Matches Pathfinder ad0021_15node science: GSWP3 TOP/crop, spinup_state=1,
 # ELM_FORCE_COLDSTART=off. Coupler/MOSART/DATM are cold (do not CONTINUE_RUN
@@ -61,9 +66,9 @@ fi
 CASE_NAME="${CASE_NAME:-I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_30node}"
 CASEDIR="${E3SM_SRCROOT}/e3sm_cases/${CASE_NAME}"
 
-# 30 nodes x 60 MPI/node = 1800
-NTASKS_ALL="${NTASKS_ALL:-1800}"
-MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE:-60}"
+# 30 nodes x 8 MPI/node = 240. Do not raise MPI/node above 10.
+NTASKS_ALL="${NTASKS_ALL:-240}"
+MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE:-8}"
 WALLTIME="${WALLTIME:-02:00:00}"
 STOP_N="${STOP_N:-1}"
 RUN_STARTDATE="${RUN_STARTDATE:-0021-01-01}"
@@ -111,6 +116,11 @@ if command -v ncdump >/dev/null 2>&1; then
   fi
 fi
 
+if [[ "${MAX_MPITASKS_PER_NODE}" -gt 10 ]]; then
+  echo "ERROR: MAX_MPITASKS_PER_NODE=${MAX_MPITASKS_PER_NODE} OOMs after the elm.r read (~42 GiB/rank)." >&2
+  echo "Use 8. See docs/AI4ELM_mct_restart_memory.md" >&2
+  exit 1
+fi
 expected_nodes=$(( (NTASKS_ALL + MAX_MPITASKS_PER_NODE - 1) / MAX_MPITASKS_PER_NODE ))
 if [[ "${expected_nodes}" -ne 30 ]]; then
   echo "WARNING: NTASKS_ALL=${NTASKS_ALL} / ${MAX_MPITASKS_PER_NODE} → ${expected_nodes} nodes (want 30)."
@@ -163,7 +173,10 @@ cd "${CASEDIR}"
 ./xmlchange JOB_WALLCLOCK_TIME="${WALLTIME}"
 ./xmlchange USER_REQUESTED_WALLTIME="${WALLTIME}"
 
-# CPU land layout: 60 MPI/node → 30 nodes for 1800 ranks
+# Serial NetCDF PIO, same as the CONTINUE that finished (job 6005996).
+./xmlchange PIO_TYPENAME=netcdf
+
+# 8 MPI/node → 30 nodes for 240 ranks. 60/node OOMs after the elm.r read.
 ./xmlchange MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE}"
 ./xmlchange MAX_TASKS_PER_NODE="${MAX_MPITASKS_PER_NODE}"
 ./xmlchange NTASKS="${NTASKS_ALL}"
@@ -212,7 +225,7 @@ echo "==== 30-node AD-from-0021 code-start config ===="
 ./xmlquery COMPSET,GRID,COMP_INTERFACE
 ./xmlquery RUN_TYPE,RUN_STARTDATE,STOP_OPTION,STOP_N,REST_N
 ./xmlquery ELM_ACCELERATED_SPINUP,ELM_FORCE_COLDSTART
-./xmlquery NTASKS,MAX_MPITASKS_PER_NODE,JOB_WALLCLOCK_TIME
+./xmlquery NTASKS,MAX_MPITASKS_PER_NODE,PIO_TYPENAME,JOB_WALLCLOCK_TIME
 echo "finidat / spinup_state:"
 grep -E 'finidat|spinup_state' user_nl_elm || true
 if command -v ncdump >/dev/null 2>&1; then
@@ -225,3 +238,4 @@ echo "Case created: ${CASEDIR}"
 echo "Next: cd ${CASEDIR} && ./case.build && ./case.submit"
 echo "Note: Frontier max walltime at 30 nodes is 2:00:00; raise RESUBMIT if the year does not finish."
 echo "Mesh note: docs/AI4ELM_finidat_gridcell_mismatch.md (must be gridcell=94838)."
+echo "Memory note: docs/AI4ELM_mct_restart_memory.md (8 MPI/node, PIO=netcdf)."

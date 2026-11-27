@@ -1,9 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-# Pathfinder 15-node (1920 MPI) 1-year AD segment starting from Jinyun's
+# Pathfinder 15-node (120 MPI = 15 x 8) 1-year AD segment starting from Jinyun's
 # AD restart elm.r.0021 (on Pathfinder under AI_restart_files_Jinyun/).
 # Requires gridcell=94838 (same mesh as smoke / Frontier MCT case).
+#
+# 8 MPI/node matches the Frontier CONTINUE that finished (job 6005996).
+# The shared env default of 128 MPI/node leaves only a few GiB/rank under
+# --mem=450g and will abort after the ~57 GB elm.r read.
+# See docs/AI4ELM_mct_restart_memory.md.
 #
 # Science matches the smoke / AD scripts (GSWP3 TOP/crop, spinup_state=1).
 # Queue: hpcl-cli185. Slurm memory: 450g/node (nodes ~503 GB; 500g is rejected).
@@ -43,7 +48,9 @@ PY
 
 CASE_NAME="${CASE_NAME:-I1850GSWCNPRDCTCBCTOPPHSWFMCROP_ad0021_15node}"
 CASEDIR="${CASE_ROOT}/${CASE_NAME}"
-NTASKS_ALL="${NTASKS_ALL:-1920}"   # 15 nodes x 128
+# env.sh defaults MAX_MPITASKS_PER_NODE=128. Override for this restart case.
+MAX_MPITASKS_PER_NODE="${AI4ELM_PPN:-8}"
+NTASKS_ALL="${NTASKS_ALL:-120}"   # 15 nodes x 8
 WALLTIME="${WALLTIME:-12:00:00}"
 STOP_N="${STOP_N:-1}"
 MEM_GB="${MEM_GB:-450}"
@@ -55,7 +62,7 @@ echo "E3SM_SRCROOT:  ${E3SM_SRCROOT}"
 echo "CASEDIR:       ${CASEDIR}"
 echo "CUSTOM_DATA:   ${CUSTOM_DATA}"
 echo "AD_FINIDAT:    ${AD_FINIDAT}"
-echo "NTASKS_ALL:    ${NTASKS_ALL}  (15 nodes x 128 if default)"
+echo "NTASKS_ALL:    ${NTASKS_ALL}  (MAX_MPITASKS_PER_NODE=${MAX_MPITASKS_PER_NODE})"
 echo "JOB_QUEUE:     ${JOB_QUEUE}"
 echo "MEM_GB:        ${MEM_GB}"
 echo "STOP_N:        ${STOP_N} year(s) from ${RUN_STARTDATE}"
@@ -91,8 +98,14 @@ elif command -v ncdump >/dev/null 2>&1; then
   fi
 fi
 
-if [[ "${NTASKS_ALL}" -ne 1920 ]]; then
-  echo "WARNING: NTASKS_ALL=${NTASKS_ALL} (default 1920 = 15 nodes). Nodes = ceil(NTASKS/128)."
+if [[ "${MAX_MPITASKS_PER_NODE}" -gt 10 ]]; then
+  echo "ERROR: MAX_MPITASKS_PER_NODE=${MAX_MPITASKS_PER_NODE} OOMs after the elm.r read (~42 GiB/rank)." >&2
+  echo "Use AI4ELM_PPN=8. See docs/AI4ELM_mct_restart_memory.md" >&2
+  exit 1
+fi
+expected_nodes=$(( (NTASKS_ALL + MAX_MPITASKS_PER_NODE - 1) / MAX_MPITASKS_PER_NODE ))
+if [[ "${expected_nodes}" -ne 15 ]]; then
+  echo "WARNING: NTASKS_ALL=${NTASKS_ALL} / ${MAX_MPITASKS_PER_NODE} → ${expected_nodes} nodes (want 15)."
 fi
 
 rm -rf "${CASEDIR}"
@@ -141,7 +154,12 @@ cd "${CASEDIR}"
 ./xmlchange JOB_WALLCLOCK_TIME="${WALLTIME}"
 ./xmlchange USER_REQUESTED_WALLTIME="${WALLTIME}"
 
+# Serial NetCDF PIO, same as Frontier job 6005996.
+./xmlchange PIO_TYPENAME=netcdf
+
+# 8 MPI/node. Also set MAX_TASKS_PER_NODE so the node count is N/8.
 ./xmlchange MAX_MPITASKS_PER_NODE="${MAX_MPITASKS_PER_NODE}"
+./xmlchange MAX_TASKS_PER_NODE="${MAX_MPITASKS_PER_NODE}"
 ./xmlchange NTASKS="${NTASKS_ALL}"
 ./xmlchange NTASKS_ATM="${NTASKS_ALL}"
 ./xmlchange NTASKS_LND="${NTASKS_ALL}"
@@ -225,7 +243,7 @@ fi
 
 echo "==== 15-node AD-from-0021 config ===="
 ./xmlquery COMPSET,GRID,COMP_INTERFACE,DATM_MODE
-./xmlquery RUN_STARTDATE,STOP_OPTION,STOP_N,NTASKS,JOB_QUEUE,JOB_WALLCLOCK_TIME
+./xmlquery RUN_STARTDATE,STOP_OPTION,STOP_N,NTASKS,MAX_MPITASKS_PER_NODE,PIO_TYPENAME,JOB_QUEUE,JOB_WALLCLOCK_TIME
 ./xmlquery ELM_ACCELERATED_SPINUP,ELM_FORCE_COLDSTART
 echo "Slurm mem directive:"
 grep -E -- '--mem=' env_batch.xml || true
@@ -237,4 +255,5 @@ echo "Case created: ${CASEDIR}"
 echo "user_nl_elm:  ${CASEDIR}/user_nl_elm"
 echo "finidat:      ${AD_FINIDAT}"
 echo "Next: cd ${CASEDIR} && ./case.build && ./case.submit"
-echo "Queue hpcl-cli185: 15 of 20 nodes; --mem=${MEM_GB}g per node."
+echo "Queue hpcl-cli185: 15 of 20 nodes; --mem=${MEM_GB}g per node; 8 MPI/node."
+echo "Memory note: docs/AI4ELM_mct_restart_memory.md"
